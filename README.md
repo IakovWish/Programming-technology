@@ -1,1 +1,1 @@
-# Programming-technology_1
+Технологии программирования
