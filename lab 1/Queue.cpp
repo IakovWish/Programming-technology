@@ -13,7 +13,7 @@ bool Queue::check()
 {
     if (size == 0)
     {
-        cout << "Очередь пуста" << endl;
+        cout << "РћС‡РµСЂРµРґСЊ РїСѓСЃС‚Р°" << endl;
         system("pause");
         return false;
     }
@@ -39,8 +39,8 @@ Queue:: ~Queue()
 
 void Queue::push(int value)
 {
-    Unit* buff = new Unit; // выделяем память под новый элемент
-    buff->prev = last; // новый элемент ссылается на старый последний
+    Unit* buff = new Unit; // РІС‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ РїРѕРґ РЅРѕРІС‹Р№ СЌР»РµРјРµРЅС‚
+    buff->prev = last; // РЅРѕРІС‹Р№ СЌР»РµРјРµРЅС‚ СЃСЃС‹Р»Р°РµС‚СЃСЏ РЅР° СЃС‚Р°СЂС‹Р№ РїРѕСЃР»РµРґРЅРёР№
     buff->value = value;
     last = buff;
     size++;
@@ -50,7 +50,7 @@ int Queue::pop(void)
 {
     int now_ex = 0;
     Unit* buf = last;
-    if (buf->prev == nullptr) // если в очереди 1 элемент
+    if (buf->prev == nullptr) // РµСЃР»Рё РІ РѕС‡РµСЂРµРґРё 1 СЌР»РµРјРµРЅС‚
     {
         now_ex = buf->value;
         delete last;
@@ -59,7 +59,7 @@ int Queue::pop(void)
     }
     else
     {
-        while (buf->prev->prev != nullptr) // пока не дойдем до второго в очереди
+        while (buf->prev->prev != nullptr) // РїРѕРєР° РЅРµ РґРѕР№РґРµРј РґРѕ РІС‚РѕСЂРѕРіРѕ РІ РѕС‡РµСЂРµРґРё
         {
             buf = (buf->prev);
         }
@@ -75,18 +75,18 @@ void Queue::out()
 {
     Unit* buf = last;
 
-    while (buf->prev != nullptr) // если это был не последний, то...
+    while (buf->prev != nullptr) // РµСЃР»Рё СЌС‚Рѕ Р±С‹Р» РЅРµ РїРѕСЃР»РµРґРЅРёР№, С‚Рѕ...
     {
         cout << buf->value << "  ->  ";
-        buf = buf->prev; // берем следующий
+        buf = buf->prev; // Р±РµСЂРµРј СЃР»РµРґСѓСЋС‰РёР№
     };
 
-    cout << buf->value << endl; // вписываем последний
+    cout << buf->value << endl; // РІРїРёСЃС‹РІР°РµРј РїРѕСЃР»РµРґРЅРёР№
 }
 
-void Queue::copy(Queue& ob) // передаем текущую очередь
+void Queue::copy(Queue& ob) // РїРµСЂРµРґР°РµРј С‚РµРєСѓС‰СѓСЋ РѕС‡РµСЂРµРґСЊ
 {
-    int* arr = new int[ob.size]; // создаем указатель на массив равный количеству элементов в очереди
+    int* arr = new int[ob.size]; // СЃРѕР·РґР°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РјР°СЃСЃРёРІ СЂР°РІРЅС‹Р№ РєРѕР»РёС‡РµСЃС‚РІСѓ СЌР»РµРјРµРЅС‚РѕРІ РІ РѕС‡РµСЂРµРґРё
     Unit* ptr = ob.last;
 
     for (int i = ob.size - 1; i >= 0; i--)
@@ -97,7 +97,7 @@ void Queue::copy(Queue& ob) // передаем текущую очередь
 
     for (int i = 0; i < ob.size; i++)
     {
-        this->push(arr[i]); // указатель на обьект на котором вызвана функция
+        this->push(arr[i]); // СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РѕР±СЊРµРєС‚ РЅР° РєРѕС‚РѕСЂРѕРј РІС‹Р·РІР°РЅР° С„СѓРЅРєС†РёСЏ
     }
 
     delete[] arr;
