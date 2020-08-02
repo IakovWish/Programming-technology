@@ -11,23 +11,23 @@ public:
 class sub2 : protected Queue
 {
 public:
-    void push(int data); // добавление элемента в очередь
-    int pop(); // извлечения элемента
-    void out(); // вывод на экран
-    void copy(sub2& ob); // Копирование очереди
+    void push(int data); // РґРѕР±Р°РІР»РµРЅРёРµ СЌР»РµРјРµРЅС‚Р° РІ РѕС‡РµСЂРµРґСЊ
+    int pop(); // РёР·РІР»РµС‡РµРЅРёСЏ СЌР»РµРјРµРЅС‚Р°
+    void out(); // РІС‹РІРѕРґ РЅР° СЌРєСЂР°РЅ
+    void copy(sub2& ob); // РљРѕРїРёСЂРѕРІР°РЅРёРµ РѕС‡РµСЂРµРґРё
     void merger(sub2& ob1, sub2& ob2);
-    bool check(); // Проверяем на пустоту
+    bool check(); // РџСЂРѕРІРµСЂСЏРµРј РЅР° РїСѓСЃС‚РѕС‚Сѓ
     int min_unit_finder();
 };
 
 class sub3 : private Queue
 {
 public:
-    void push(int data); //добавление элемента в очередь
-    int pop(); // извлечения элемента
-    void out(); // вывод на экран
-    void copy(sub3& ob); // Копирование очереди
+    void push(int data); //РґРѕР±Р°РІР»РµРЅРёРµ СЌР»РµРјРµРЅС‚Р° РІ РѕС‡РµСЂРµРґСЊ
+    int pop(); // РёР·РІР»РµС‡РµРЅРёСЏ СЌР»РµРјРµРЅС‚Р°
+    void out(); // РІС‹РІРѕРґ РЅР° СЌРєСЂР°РЅ
+    void copy(sub3& ob); // РљРѕРїРёСЂРѕРІР°РЅРёРµ РѕС‡РµСЂРµРґРё
     void merger(sub3& ob1, sub3& ob2);
-    bool check(); // Проверяем на пустоту
+    bool check(); // РџСЂРѕРІРµСЂСЏРµРј РЅР° РїСѓСЃС‚РѕС‚Сѓ
     int min_unit_finder();
 };
