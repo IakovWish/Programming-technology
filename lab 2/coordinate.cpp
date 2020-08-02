@@ -2,46 +2,46 @@
 #include <iostream>
 using namespace std;
 
-coordinate::coordinate() :x(0), y(0), z(0) // конструктор
+coordinate::coordinate() :x(0), y(0), z(0) // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ
 {
 
 }
 
-coordinate::coordinate(int X, int Y, int Z) // конструктор с параметрами
+coordinate::coordinate(int X, int Y, int Z) // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ СЃ РїР°СЂР°РјРµС‚СЂР°РјРё
 {
 	this->x = X;
 	this->y = Y;
 	this->z = Z;
 }
 
-coordinate::coordinate(const coordinate& tmp_xyz) // конструктор копирования
+coordinate::coordinate(const coordinate& tmp_xyz) // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєРѕРїРёСЂРѕРІР°РЅРёСЏ
 {
 	this->x = tmp_xyz.x;
 	this->y = tmp_xyz.y;
 	this->z = tmp_xyz.z;
 }
 
-coordinate::~coordinate() // деструктор
+coordinate::~coordinate() // РґРµСЃС‚СЂСѓРєС‚РѕСЂ
 {
 	this->x = 0;
 	this->y = 0;
 	this->z = 0;
 }
 
-istream& operator>>(istream& in, coordinate& xyz) // перегруженный ввод
+istream& operator>>(istream& in, coordinate& xyz) // РїРµСЂРµРіСЂСѓР¶РµРЅРЅС‹Р№ РІРІРѕРґ
 {
 	int option = 0;
-	cout << "|0|  - Задать координаты вручную" << endl;
-	cout << "|1|  - Задать координаты рандомно" << endl;
+	cout << "|0|  - Р—Р°РґР°С‚СЊ РєРѕРѕСЂРґРёРЅР°С‚С‹ РІСЂСѓС‡РЅСѓСЋ" << endl;
+	cout << "|1|  - Р—Р°РґР°С‚СЊ РєРѕРѕСЂРґРёРЅР°С‚С‹ СЂР°РЅРґРѕРјРЅРѕ" << endl;
 	cin >> option;
 
 
 	switch (option)
 	{
 	case 0:
-		cout << "Введите x  "; in >> xyz.x;
-		cout << "Введите y  "; in >> xyz.y;
-		cout << "Введите z  "; in >> xyz.z;
+		cout << "Р’РІРµРґРёС‚Рµ x  "; in >> xyz.x;
+		cout << "Р’РІРµРґРёС‚Рµ y  "; in >> xyz.y;
+		cout << "Р’РІРµРґРёС‚Рµ z  "; in >> xyz.z;
 		break;
 
 	case 1:
@@ -49,7 +49,7 @@ istream& operator>>(istream& in, coordinate& xyz) // перегруженный ввод
 		break;
 
 	default:
-		cout << "некорректный ввод\n";
+		cout << "РЅРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ РІРІРѕРґ\n";
 		system("pause");
 		system("cls");
 		break;
@@ -58,34 +58,34 @@ istream& operator>>(istream& in, coordinate& xyz) // перегруженный ввод
 	return in;
 }
 
-ostream& operator<<(ostream& os, coordinate& xyz) // перегруженный вывод
+ostream& operator<<(ostream& os, coordinate& xyz) // РїРµСЂРµРіСЂСѓР¶РµРЅРЅС‹Р№ РІС‹РІРѕРґ
 {
 	os << "{" << xyz.x << ", " << xyz.y << ", " << xyz.z << "}";
 	return os;
 }
 
-void coordinate::operator + (int number) // перегруженный оператор + как метод для ЧИСЛА И ЭКЗЕМПЛЯРА
+void coordinate::operator + (int number) // РїРµСЂРµРіСЂСѓР¶РµРЅРЅС‹Р№ РѕРїРµСЂР°С‚РѕСЂ + РєР°Рє РјРµС‚РѕРґ РґР»СЏ Р§РРЎР›Рђ Р Р­РљР—Р•РњРџР›РЇР Рђ
 {
 	x += number;
 	y += number;
 	z += number;
 }
 
-void coordinate::operator + (coordinate& xyz) // перегруженный оператор + как метод для ДВУХ ЭКЗЕМПЛЯРОВ
+void coordinate::operator + (coordinate& xyz) // РїРµСЂРµРіСЂСѓР¶РµРЅРЅС‹Р№ РѕРїРµСЂР°С‚РѕСЂ + РєР°Рє РјРµС‚РѕРґ РґР»СЏ Р”Р’РЈРҐ Р­РљР—Р•РњРџР›РЇР РћР’
 {
 	x += xyz.x;
 	y += xyz.y;
 	z += xyz.z;
 }
 
-void operator - (coordinate& xyz, int number) // перегруженный оператор - как дружественная функция для ЧИСЛА И ЭКЗЕМПЛЯРА
+void operator - (coordinate& xyz, int number) // РїРµСЂРµРіСЂСѓР¶РµРЅРЅС‹Р№ РѕРїРµСЂР°С‚РѕСЂ - РєР°Рє РґСЂСѓР¶РµСЃС‚РІРµРЅРЅР°СЏ С„СѓРЅРєС†РёСЏ РґР»СЏ Р§РРЎР›Рђ Р Р­РљР—Р•РњРџР›РЇР Рђ
 {
 	xyz.x -= number;
 	xyz.y -= number;
 	xyz.z -= number;
 }
 
-void operator - (coordinate& xyz_1, coordinate& xyz_2) // перегруженный оператор - как дружественная функция для ДВУХ ЭКЗЕМПЛЯРОВ
+void operator - (coordinate& xyz_1, coordinate& xyz_2) // РїРµСЂРµРіСЂСѓР¶РµРЅРЅС‹Р№ РѕРїРµСЂР°С‚РѕСЂ - РєР°Рє РґСЂСѓР¶РµСЃС‚РІРµРЅРЅР°СЏ С„СѓРЅРєС†РёСЏ РґР»СЏ Р”Р’РЈРҐ Р­РљР—Р•РњРџР›РЇР РћР’
 {
 	xyz_1.x -= xyz_2.x;
 	xyz_1.y -= xyz_2.y;

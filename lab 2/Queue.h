@@ -2,8 +2,8 @@
 
 struct Unit
 {
-	int value = 0; // значение элемента очереди
-	Unit* prev = 0; // ссылка на предыдущий элемент очереди
+	int value = 0; // Р·РЅР°С‡РµРЅРёРµ СЌР»РµРјРµРЅС‚Р° РѕС‡РµСЂРµРґРё
+	Unit* prev = 0; // СЃСЃС‹Р»РєР° РЅР° РїСЂРµРґС‹РґСѓС‰РёР№ СЌР»РµРјРµРЅС‚ РѕС‡РµСЂРµРґРё
 };
 
 class Queue
@@ -12,17 +12,17 @@ class Queue
 	friend Queue operator-- (Queue& tmp_queue);
 
 private:
-	Unit* last = 0; // конец очереди
+	Unit* last = 0; // РєРѕРЅРµС† РѕС‡РµСЂРµРґРё
 
 protected:
-	int size; // размер очереди
-	void push(int value); // добавление элементов в конец очереди
+	int size; // СЂР°Р·РјРµСЂ РѕС‡РµСЂРµРґРё
+	void push(int value); // РґРѕР±Р°РІР»РµРЅРёРµ СЌР»РµРјРµРЅС‚РѕРІ РІ РєРѕРЅРµС† РѕС‡РµСЂРµРґРё
 
 public:
-	explicit Queue(int sizer); // конструктор c параметрами
-	Queue(); // конструктор
-	Queue(const Queue& tmp_queue); // конструктор копирования
-	~Queue(); // деструктор
+	explicit Queue(int sizer); // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ c РїР°СЂР°РјРµС‚СЂР°РјРё
+	Queue(); // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ
+	Queue(const Queue& tmp_queue); // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєРѕРїРёСЂРѕРІР°РЅРёСЏ
+	~Queue(); // РґРµСЃС‚СЂСѓРєС‚РѕСЂ
 	void out();
 	Queue& operator = (const Queue& tmp_queue);
 	Queue operator++ (int);

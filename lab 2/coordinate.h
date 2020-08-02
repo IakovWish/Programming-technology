@@ -21,16 +21,16 @@ private:
 protected:
 
 public:
-	coordinate(); // конструктор
-	explicit coordinate(int X, int Y = 0, int Z = 0); // конструктор с параметрами
-	coordinate(const coordinate& tmp_xyz); // конструктор копирования
+	coordinate(); // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ
+	explicit coordinate(int X, int Y = 0, int Z = 0); // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ СЃ РїР°СЂР°РјРµС‚СЂР°РјРё
+	coordinate(const coordinate& tmp_xyz); // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєРѕРїРёСЂРѕРІР°РЅРёСЏ
 
-	~coordinate(); // деструктор
+	~coordinate(); // РґРµСЃС‚СЂСѓРєС‚РѕСЂ
 
 	void operator + (int number);
 	void operator + (coordinate& xyz);
 
 	void operator == (const coordinate xyz);
 
-	coordinate random(int X = 0 + rand() % 11, int Y = 0 + rand() % 11, int Z = 0 + rand() % 11); //  методы/функции с аргументами по умолчанию
+	coordinate random(int X = 0 + rand() % 11, int Y = 0 + rand() % 11, int Z = 0 + rand() % 11); //  РјРµС‚РѕРґС‹/С„СѓРЅРєС†РёРё СЃ Р°СЂРіСѓРјРµРЅС‚Р°РјРё РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
 };
