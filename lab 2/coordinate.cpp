@@ -4,7 +4,7 @@ using namespace std;
 
 coordinate::coordinate() :x(0), y(0), z(0) // конструктор
 {
-
+	// привет
 }
 
 coordinate::coordinate(int X, int Y, int Z) // конструктор с параметрами
