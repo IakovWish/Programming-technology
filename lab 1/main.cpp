@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
-//#include "stdafx.h"
 #include <Windows.h>
 
 using namespace std;
@@ -137,7 +136,6 @@ void workWithClass(tmpl* queue) // шаблон класса для работы
 
 int main()
 {
-    //setlocale(LC_ALL, "Rus");
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
 
