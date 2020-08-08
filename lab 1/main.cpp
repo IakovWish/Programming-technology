@@ -5,7 +5,7 @@
 #include <iostream>
 #include <Windows.h>
 
-using namespace std;
+using namespace std; // привет
 
 template <class tmpl>
 void workWithClass(tmpl* queue) // шаблон класса для работы c разными наследниками в основной функции, передаём указатель на класс
