@@ -1,12 +1,14 @@
 #include "Arithmetic.h"
 #include "Geometric.h"
 #include <iostream>
+#include <Windows.h>
 
 using namespace std;
 
 int main()
 {
-	setlocale(LC_ALL, "Rus");
+	SetConsoleOutputCP(CP_UTF8);
+	SetConsoleCP(CP_UTF8);
 
 	int option = 1;
 

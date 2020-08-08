@@ -1,6 +1,7 @@
 #include "Queue.h"
 #include <iostream>
 #include <string.h>
+#include <Windows.h>
 
 using namespace std;
 
@@ -682,9 +683,11 @@ void workWithClass2(T2*& queue, T1 x)
 
 int main()
 {
-	setlocale(LC_ALL, "Rus");
-	system("chcp 1251");
-	system("cls");
+	//setlocale(LC_ALL, "Rus");
+	//system("chcp 1251");
+	SetConsoleOutputCP(CP_UTF8);
+	SetConsoleCP(CP_UTF8);
+	//system("cls");
 
 	int menu_1 = 1; // выбор типа данных
 

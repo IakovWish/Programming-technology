@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
+#include <Windows.h>
 
 using namespace std;
 
@@ -10,7 +11,8 @@ void show(Queue& queue_1, Queue& queue_2);
 
 int main()
 {
-	setlocale(LC_ALL, "Rus");
+	SetConsoleOutputCP(CP_UTF8);
+	SetConsoleCP(CP_UTF8);
 
 	// Queue queue = 0; // невозможно, так как мы запретили неявное преобразование типа этого аргумента в тип класса
 	Queue queue_1;
