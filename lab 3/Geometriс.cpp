@@ -4,16 +4,16 @@
 
 using namespace std;
 
-Geometric::Geometric() // конструктор
+Geometric::Geometric() // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ
 {
 	path = "Geometric_progression.txt";
-	cout << "вызван конструктор геометрической" << endl;
+	cout << "РІС‹Р·РІР°РЅ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РіРµРѕРјРµС‚СЂРёС‡РµСЃРєРѕР№" << endl;
 	system("pause");
 }
 
-Geometric::Geometric(string way) // конструктор c параметрами
+Geometric::Geometric(string way) // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ c РїР°СЂР°РјРµС‚СЂР°РјРё
 {
-	cout << "вызван конструктор геометрической с параметрами" << endl;
+	cout << "РІС‹Р·РІР°РЅ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РіРµРѕРјРµС‚СЂРёС‡РµСЃРєРѕР№ СЃ РїР°СЂР°РјРµС‚СЂР°РјРё" << endl;
 
 	if (way == "")
 	{
@@ -27,11 +27,11 @@ Geometric::Geometric(string way) // конструктор c параметрами
 	system("pause");
 }
 
-Geometric::Geometric(const Geometric& tmp_Geometriс)
+Geometric::Geometric(const Geometric& tmp_GeometriСЃ)
 {
-	cout << "вызван конструктор копирования геометрической" << endl;
-	member1 = tmp_Geometriс.member1;
-	const_diff_att = tmp_Geometriс.const_diff_att;
+	cout << "РІС‹Р·РІР°РЅ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєРѕРїРёСЂРѕРІР°РЅРёСЏ РіРµРѕРјРµС‚СЂРёС‡РµСЃРєРѕР№" << endl;
+	member1 = tmp_GeometriСЃ.member1;
+	const_diff_att = tmp_GeometriСЃ.const_diff_att;
 	system("pause");
 }
 
@@ -42,6 +42,6 @@ double Geometric::progression_amount(int value)
 
 Geometric::~Geometric()
 {
-	cout << "вызван деструктор геометрической" << endl;
+	cout << "РІС‹Р·РІР°РЅ РґРµСЃС‚СЂСѓРєС‚РѕСЂ РіРµРѕРјРµС‚СЂРёС‡РµСЃРєРѕР№" << endl;
 	system("pause");
 }

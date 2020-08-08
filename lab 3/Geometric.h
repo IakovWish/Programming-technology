@@ -10,8 +10,8 @@ protected:
 
 public:
 	double progression_amount(int value) override;
-	Geometric(); // конструктор
-	Geometric(string path); // конструктор с параметрами
-	Geometric(const Geometric& tmp_Geometriс); // конструктор копирования
+	Geometric(); // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ
+	Geometric(string path); // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ СЃ РїР°СЂР°РјРµС‚СЂР°РјРё
+	Geometric(const Geometric& tmp_GeometriСЃ); // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєРѕРїРёСЂРѕРІР°РЅРёСЏ
 	~Geometric() override;
 };

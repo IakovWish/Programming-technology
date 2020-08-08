@@ -12,8 +12,8 @@ protected:
 
 public:
 	double progression_amount(int value) override;
-	Arithmetic(); // конструктор
-	Arithmetic(string path); // конструктор с параметрами
-	Arithmetic(const Arithmetic& tmp_Arithmetic); // конструктор копирования
+	Arithmetic(); // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ
+	Arithmetic(string path); // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ СЃ РїР°СЂР°РјРµС‚СЂР°РјРё
+	Arithmetic(const Arithmetic& tmp_Arithmetic); // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєРѕРїРёСЂРѕРІР°РЅРёСЏ
 	~Arithmetic() override;
 };

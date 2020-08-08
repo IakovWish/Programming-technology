@@ -4,16 +4,16 @@
 
 using namespace std;
 
-Arithmetic::Arithmetic() // конструктор
+Arithmetic::Arithmetic() // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ
 {
 	path = "Arithmetic_progression.txt";
-	cout << "вызван конструктор арифметической" << endl;
+	cout << "РІС‹Р·РІР°РЅ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ Р°СЂРёС„РјРµС‚РёС‡РµСЃРєРѕР№" << endl;
 	system("pause");
 }
 
-Arithmetic::Arithmetic(string way) // конструктор c параметрами
+Arithmetic::Arithmetic(string way) // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ c РїР°СЂР°РјРµС‚СЂР°РјРё
 {
-	cout << "вызван конструктор арифметической с параметрами" << endl;
+	cout << "РІС‹Р·РІР°РЅ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ Р°СЂРёС„РјРµС‚РёС‡РµСЃРєРѕР№ СЃ РїР°СЂР°РјРµС‚СЂР°РјРё" << endl;
 
 	if (way == "")
 	{
@@ -28,7 +28,7 @@ Arithmetic::Arithmetic(string way) // конструктор c параметрами
 
 Arithmetic::Arithmetic(const Arithmetic& tmp_Arithmetic)
 {
-	cout << "вызван конструктор копирования арифметической" << endl;
+	cout << "РІС‹Р·РІР°РЅ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєРѕРїРёСЂРѕРІР°РЅРёСЏ Р°СЂРёС„РјРµС‚РёС‡РµСЃРєРѕР№" << endl;
 	member1 = tmp_Arithmetic.member1;
 	const_diff_att = tmp_Arithmetic.const_diff_att;
 	system("pause");
@@ -41,6 +41,6 @@ double Arithmetic::progression_amount(int value)
 
 Arithmetic::~Arithmetic()
 {
-	cout << "вызван деструктор арифметической" << endl;
+	cout << "РІС‹Р·РІР°РЅ РґРµСЃС‚СЂСѓРєС‚РѕСЂ Р°СЂРёС„РјРµС‚РёС‡РµСЃРєРѕР№" << endl;
 	system("pause");
 }
