@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
+//#include "stdafx.h"
+//#include <Windows.h>
 
 using namespace std;
 
@@ -136,6 +138,8 @@ void workWithClass(tmpl* queue) // шаблон класса для работы
 int main()
 {
     setlocale(LC_ALL, "Rus");
+    //SetConsoleCP(1251);// установка кодовой страницы win-cp 1251 в поток ввода
+    //SetConsoleOutputCP(1251); // установка кодовой страницы win-cp 1251 в поток вывода
 
     int Number_Q; // количество очередей
     int Type_son; // номер типа наследования
