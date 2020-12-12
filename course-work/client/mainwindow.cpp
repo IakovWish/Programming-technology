@@ -54,15 +54,15 @@ void MainWindow::paintEvent(QPaintEvent* event)
 
     switch (controller->getState())
     {
-    case ST_WAITTING_FOR_THE_START:
-        setStatus(tr("waiting for the start"));
+    case State::ST_WAITTING_FOR_THE_START:
+        setStatus(tr("press start"));
         break;
 
-    case ST_MAKING_STEP:
+    case State::ST_MAKING_STEP:
         setStatus(tr("your step"));
         break;
 
-    case ST_WAITING_STEP:
+    case State::ST_WAITING_STEP:
         setStatus(tr("wait for enemy"));
         break;
     }
@@ -97,16 +97,16 @@ QImage MainWindow::getFieldImage(char fld)
             QString imgName = "";
             switch (cell)
             {
-            case CL_X:
+            case Cell::CL_X:
                 imgName = "standart_blue";
                 break;
-            case CL_O:
+            case Cell::CL_O:
                 imgName = "standart_red";
                 break;
-            case CL_CATCH_X:
+            case Cell::CL_CATCH_X:
                 imgName = "catch_blue";
                 break;
-            case CL_CATCH_O:
+            case Cell::CL_CATCH_O:
                 imgName = "catch_red";
                 break;
             default:
@@ -163,12 +163,12 @@ void MainWindow::on_actionStart_triggered()
 
 void MainWindow::redraw()
 {
-    if (controller->getState() == ST_WAITTING_FOR_THE_START)
+    if (controller->getState() == State::ST_WAITTING_FOR_THE_START)
     {
         ui->labelOpponent->clear();
     }
 
-    if (controller->getState() == ST_WAITTING_FOR_THE_START)
+    if (controller->getState() == State::ST_WAITTING_FOR_THE_START)
     {
         ui->actionStart->setDisabled(false);
         ui->actionLeave->setDisabled(true);
@@ -189,12 +189,12 @@ void MainWindow::on_actionQuit_triggered()
 
 void MainWindow::showGameResult(GameResult result)
 {
-    if (result == GR_NONE)
+    if (result == GameResult::GR_NONE)
     {
         return;
     }
 
-    QString messageString = result == GR_WON ? tr("You win!") : tr("You lose!");
+    QString messageString = result == GameResult::GR_WON ? tr("You win!") : tr("You lose!");
         
     this->update();
     QMessageBox::information(this, tr("Game result"), messageString);
@@ -206,24 +206,24 @@ void MainWindow::showGameError(GameErrorMessage message)
 
     switch (message)
     {
-    case GEM_WRONG_USER:
+    case GameErrorMessage::GEM_WRONG_USER:
         messageString = tr("Wrong user passed!");
         break;
 
-    case GEM_ALREADY_CONNECTED:
+    case GameErrorMessage::GEM_ALREADY_CONNECTED:
         messageString = tr("You are already connected!");
         break;
 
-    case GEM_SERVER_ERROR:
+    case GameErrorMessage::GEM_SERVER_ERROR:
         messageString = tr("Server error!");
         break;
 
-    case GEM_SERVER_CONNECTION_REFUSED:
-    case GEM_SERVER_UNAVAILABLE:
+    case GameErrorMessage::GEM_SERVER_CONNECTION_REFUSED:
+    case GameErrorMessage::GEM_SERVER_UNAVAILABLE:
         messageString = tr("Cannot connect to the server.");
         break;
 
-    case GEM_SERVER_CONNECTION_TIMEOUT:
+    case GameErrorMessage::GEM_SERVER_CONNECTION_TIMEOUT:
         messageString = tr("Server unavailable.");
         break;
 

@@ -10,15 +10,16 @@ class Field
 public:
     enum class Cell
     {
-        CI_CLEAR = 0,
-        CI_X,
-        CI_O,
-        CI_NEW_X,
-        CI_NEW_O,
-        CI_CATCH_X,
-        CI_CATCH_O,
-        CI_CATCH_NEW_X,
-        CI_CATCH_NEW_O
+        CLEAR = 0,
+        X,
+        O,
+        NEW_X,
+        NEW_O,
+        CATCH_X,
+        CATCH_O,
+        CATCH_NEW_X,
+        CATCH_NEW_O,
+        ZERO
     };
 
     typedef QVector<Cell> Cells;
@@ -31,6 +32,10 @@ public:
     quint32 getFieldLength() const;
     quint32 getFieldSize() const;
     bool makeStep(int x, int y, Moves& newMoves);
+    bool isNewStepPossible();
+    bool isPossible(int x, int y);
+    //void guess(int x, int y, int& possible);
+    bool active(int x, int y, Cell(&MASS)[10][10]);
 
 private:
     Cell getCellPrivate( int x, int y, const Cells& cells ) const;

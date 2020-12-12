@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QString>
 
-enum Cell
+enum class Cell
 {
     CL_CLEAR = 0,
     CL_X,
@@ -26,7 +26,7 @@ public:
     void setCell( int x, int y, Cell cell );
     QString getField();
     void clear();
-    bool active(int x, int y, Cell (&MASS)[10][10]);
+    //bool active(int x, int y, Cell (&MASS)[10][10]);
 
 private:
     QVector<Cell> field;

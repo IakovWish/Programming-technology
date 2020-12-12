@@ -10,14 +10,14 @@
 #include "Utility.h"
 #include "ConnectionInfoDialog.h"
 
-enum GameResult
+enum class GameResult
 {
     GR_NONE = 0,
     GR_WON = 1,
     GR_LOST = -1
 };
 
-enum GameErrorMessage
+enum class GameErrorMessage
 {
     GEM_UNKNOWN = -1,
     GEM_NONE = 0,
@@ -70,7 +70,8 @@ private:
     void saveConfig();
     bool checkError(const QString&,const QString&);
     void emitError(GameErrorMessage error);
-    void processTurn(bool me, int x, int y, bool catched);
+    void markCell(int x, int y, Cell cell, bool atEnemyField = false);
+    //void processTurn(bool me, int x, int y, bool catched);
 
 private:
     QTcpSocket* client;

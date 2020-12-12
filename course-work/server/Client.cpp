@@ -3,7 +3,7 @@
 Client::Client():
     field_( NULL )
 {
-    step = 0;
+    step = 1;
 }
 
 Client::~Client()

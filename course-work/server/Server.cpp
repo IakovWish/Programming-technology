@@ -362,11 +362,15 @@ bool Server::stateRecievePing( const QString& cmd, ClientsIterator client )
 bool Server::stateRecieveSteps( const QString& cmd, ClientsIterator client )
 {
     QRegExp rx( "step:(\\d):(\\d):" );
-    if( rx.indexIn(cmd) == -1 )
+    if (rx.indexIn(cmd) == -1)
+    {
         return false;
+    }
 
-    if( client->status != Client::ClientStatus::ST_MAKING_STEP )
+    if (client->status != Client::ClientStatus::ST_MAKING_STEP)
+    {
         return false;
+    }
 
     qDebug() << "User" << client->login << "is making step";
 
@@ -374,37 +378,48 @@ bool Server::stateRecieveSteps( const QString& cmd, ClientsIterator client )
     quint32 y = rx.cap( 2 ).toInt();
 
     QString response1, response2;
-    Field* field = client->field();
-    Field::Cell current = field->getCell(x, y);
+    Field* field1 = client->field();
+    Field* field2 = client->playingWith->field();
+    Field::Cell current = field1->getCell(x, y);
 
-    if((current != Field::Cell::CI_CLEAR) || x >= field->getFieldLength() || y >= field->getFieldLength())
+    if (!field1->isPossible(x, y))
     {
-        client->send( "wrongstep:" );
+        client->send("wrongstep:");
         return true;
     }
 
     Field::Moves killShots;
 
-    bool isCatched = field->makeStep(x, y, killShots);
+    bool isCatched = field1->makeStep(x, y, killShots);
 
-    bool is3step = client->step == 2 ? true : false;
+    bool is3step = client->step == 3 ? true : false;
 
     QString type = isCatched ? "catched" : "standard";
 
-    client->step = is3step ? 0 : ++client->step;
-    Field::Cell cell = isCatched ? Field::Cell::CI_CATCH_O : Field::Cell::CI_O;
+    client->step = is3step ? 1 : ++client->step;
+    Field::Cell cell1 = isCatched ? Field::Cell::CATCH_X : Field::Cell::X;
+    Field::Cell cell2 = cell1 == Field::Cell::CATCH_X ? Field::Cell::CATCH_O : Field::Cell::O;
 
     if (is3step)
     {
-        field->setCell( x, y, cell );
+        field1->setCell( x, y, cell1);
+        field2->setCell(x, y, cell2);
         client->status = Client::ClientStatus::ST_WAITING_STEP;
         client->playingWith->status = Client::ClientStatus::ST_MAKING_STEP;
 
-        response1 = QString("field2:third:%1:%2:").arg(x).arg(y);
-        response2 = QString("field1:third:%1:%2:").arg(x).arg(y);
+        response1 = QString("field2:%1:%2:%3:").arg(type).arg(x).arg(y);
+        response2 = QString("field1:%1:%2:%3:").arg(type).arg(x).arg(y);
 
         client->send( response1 );
         client->playingWith->send( response2 );
+
+        field2 = client->playingWith->field();
+
+        if (!field2->isNewStepPossible())
+        {
+            disconnectClientAndRecord(client, true);
+            return true;
+        }
 
         client->playingWith->send("go:");
         return true;
@@ -412,20 +427,15 @@ bool Server::stateRecieveSteps( const QString& cmd, ClientsIterator client )
 
     for (int i = 0; i < killShots.size(); i++)
     {
-        response1 = QString("field2:%1:%2:%3:")
-            .arg(type)
-            .arg(killShots.at(i).x())
-            .arg(killShots.at(i).y());
-        response2 = QString("field1:%1:%2:%3:")
-            .arg(type)
-            .arg(killShots.at(i).x())
-            .arg(killShots.at(i).y());
+        response1 = QString("field2:%1:%2:%3:").arg(type).arg(killShots.at(i).x()).arg(killShots.at(i).y());
+        response2 = QString("field1:%1:%2:%3:").arg(type).arg(killShots.at(i).x()).arg(killShots.at(i).y());
 
         client->send(response1);
         client->playingWith->send(response2);
     }
 
-    field->setCell(x, y, cell);
+    field1->setCell(x, y, cell1);
+    field2->setCell(x, y, cell2);
 
     client->send( "go:" );
     return true;

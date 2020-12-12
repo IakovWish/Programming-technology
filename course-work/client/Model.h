@@ -3,7 +3,7 @@
 #include <QObject>
 #include "Field.h"
 
-enum State
+enum class State
 {
     ST_WAITTING_FOR_THE_START,
     ST_WAITING_STEP,
@@ -22,7 +22,7 @@ public:
     void setPassword(const QString& str);
     QString getLogin() const;
     QString getPassword() const;
-    bool isPossible(int x, int y);
+    //bool isPossible(int x, int y);
 
     Cell getCell(int x, int y) const;
     void setCell(int x, int y, Cell cell);

@@ -35,8 +35,10 @@ void Controller::readConfig()
 
     QFile cf( DEFAULT_CONFIG_FILE );
 
-    if( !cf.open(QFile::ReadOnly) )
+    if (!cf.open(QFile::ReadOnly))
+    {
         return;
+    }
 
     QByteArray line;
     QRegExp rx( "(\\d+\\.\\d+\\.\\d+\\.\\d+):(\\d+):(\\w+):(.+):" );
@@ -51,12 +53,8 @@ void Controller::readConfig()
         }
 
         qDebug() << "Setting connection info";
-        setConnectionInfo(
-            rx.cap(1),
-            rx.cap(2).toUInt(),
-            rx.cap(3),
-            rx.cap(4)
-        );
+        setConnectionInfo(rx.cap(1), rx.cap(2).toUInt(), rx.cap(3), rx.cap(4));
+
         break;
     }
 
@@ -72,60 +70,22 @@ void Controller::saveConfig()
         return;
     }
 
-    cf.write(
-        qPrintable(
-            QString("%1:%2:%3:%4:\n")
-            .arg(serverAddress.toString())
-            .arg(serverPort)
-            .arg(model->getLogin())
-            .arg(model->getPassword())
-        )
-    );
+    cf.write(qPrintable(QString("%1:%2:%3:%4:\n").arg(serverAddress.toString()).arg(serverPort).arg(model->getLogin()).arg(model->getPassword())));
     cf.close();
 }
 
 void Controller::onMousePressed( const QPoint& pos)
 {
-    //if( model->getState() == ST_PLACING_SHIPS )
-    //{
-    //    QPoint point = getMyFieldCoord( pos );
-
-    //    if( point.x() == -1 || point.y() == -1 )
-    //        return;
-
-    //    qDebug() << "Ship at" << point.x() << point.y();
-    //    model->setMyCell( point.x(), point.y(), setShip ? CL_SHIP : CL_CLEAR );
-    //    emit stateChanged();
-    //    return;
-    //}
-
-    if( model->getState() == ST_MAKING_STEP )
+    if( model->getState() == State::ST_MAKING_STEP )
     {
-        /*QPoint point = getEnemyFieldCoord( pos );*/
         QPoint point = getFieldCoord(pos);
-
-        if (point.x() == -1 || point.y() == -1)
-        {
-            return;
-        }
-
-        qDebug() << "Going to" << point.x() << point.y();
-
-        if (!model->isPossible(point.x(), point.y()))
-        {
-            return;
-        }
-
-
-
-        // model->setCell(point.x(), point.y(), CL_X);
 
         QString cmd;
         cmd = QString( "step:%1:%2:" ).arg( point.x() ).arg( point.y() );
         qDebug() << cmd;
         client->write( cmd.toLocal8Bit() );
 
-        model->setState(ST_WAITING_STEP);
+        model->setState(State::ST_WAITING_STEP);
         emit stateChanged();
 
         return;
@@ -188,7 +148,7 @@ bool Controller::parseGo( const QString& data )
     }
 
     qDebug() << "Now making step!";
-    model->setState(ST_MAKING_STEP);
+    model->setState(State::ST_MAKING_STEP);
 
     return true;
 }
@@ -197,12 +157,12 @@ bool Controller::parseErrorInfo( const QString& data )
 {
     if (checkError("wronguser:", data))
     {
-        emitError(GEM_WRONG_USER);
+        emitError(GameErrorMessage::GEM_WRONG_USER);
     }
 
     if (checkError("alreadyauth:", data))
     {
-        emitError(GEM_ALREADY_CONNECTED);
+        emitError(GameErrorMessage::GEM_ALREADY_CONNECTED);
     }
 
     return true; //TODO: fix it
@@ -221,7 +181,7 @@ bool Controller::checkError(const QString& error, const QString& data)
 void Controller::emitError(GameErrorMessage error)
 {
     qDebug() << "Some error";
-    model->setState(ST_WAITTING_FOR_THE_START);
+    model->setState(State::ST_WAITTING_FOR_THE_START);
     connectionError = true;
     emit gameError( error );
 }
@@ -236,7 +196,7 @@ bool Controller::parseWrongStep( const QString& data )
     }
 
     qDebug() << "Maked wrong step";
-    model->setState( ST_MAKING_STEP );
+    model->setState(State::ST_MAKING_STEP );
     return true;
 }
 
@@ -251,14 +211,10 @@ bool Controller::parseFields( const QString& data )
         int field = rx.cap( 1 ).toInt();
         int x = rx.cap( 3 ).toInt();
         int y = rx.cap( 4 ).toInt();
-        bool catched = false;
 
-        if (model->getCell(x, y) == CL_O || model->getCell(x, y) == CL_X)
-        {
-            catched = true;
-        }
+        Cell cell = type == "catched" ? Cell::CL_CATCH_X : Cell::CL_X;
 
-        processTurn(field == 2, x, y, catched);
+        markCell(x, y, cell, field == 2);
 
         pos += rx.matchedLength();
     }
@@ -266,17 +222,13 @@ bool Controller::parseFields( const QString& data )
     return pos;
 }
 
-void Controller::processTurn(bool me, int x, int y, bool catched)
+void Controller::markCell(int x, int y, Cell cell, bool atEnemyField)
 {
-    Cell cell;
-    if (catched == true)
+    if (!atEnemyField)
     {
-        cell = me ? CL_CATCH_X : CL_CATCH_O;
+        cell = cell == Cell::CL_CATCH_X ? Cell::CL_CATCH_O : Cell::CL_O;
     }
-    else
-    {
-        cell = me ? CL_X : CL_O;
-    }
+
     model->setCell(x, y, cell);
 }
 
@@ -287,9 +239,9 @@ bool Controller::parseGameResult( const QString& data )
     if( rx.indexIn(data) != -1 )
     {
         qDebug() << "We win!";
-        emit gameResult( GR_WON );
+        emit gameResult(GameResult::GR_WON );
        
-        model->setState(ST_WAITTING_FOR_THE_START);
+        model->setState(State::ST_WAITTING_FOR_THE_START);
 
         model->clearField();
         return true;
@@ -300,9 +252,9 @@ bool Controller::parseGameResult( const QString& data )
     if( rx2.indexIn(data) != -1 )
     {
         qDebug() << "We lose!";
-        emit gameResult( GR_LOST );
+        emit gameResult(GameResult::GR_LOST );
 
-        model->setState(ST_WAITTING_FOR_THE_START);
+        model->setState(State::ST_WAITTING_FOR_THE_START);
 
         model->clearField();
         return true;
@@ -315,7 +267,7 @@ void Controller::onGameStart()
 {
     if( client->state() == QAbstractSocket::ConnectedState )
     {
-        emit gameError( GEM_ALREADY_CONNECTED );
+        emit gameError(GameErrorMessage::GEM_ALREADY_CONNECTED );
         return;
     }
 
@@ -328,18 +280,13 @@ void Controller::onGameStart()
     {
         if (client->error() == QAbstractSocket::SocketTimeoutError)
         {
-            emit gameError(GEM_SERVER_CONNECTION_TIMEOUT);
+            emit gameError(GameErrorMessage::GEM_SERVER_CONNECTION_TIMEOUT);
         }
 
         return;
     }
 
-    qDebug(
-        "Connected to host %s:%d as %s",
-        qPrintable(serverAddress.toString()),
-        serverPort,
-        qPrintable(model->getLogin())
-    );
+    qDebug("Connected to host %s:%d as %s", qPrintable(serverAddress.toString()), serverPort, qPrintable(model->getLogin()));
 }
 
 void Controller::onGameQuit()
@@ -352,7 +299,7 @@ void Controller::onGameQuit()
         client->disconnectFromHost();
 
         model->clearField();
-        model->setState(ST_WAITTING_FOR_THE_START);
+        model->setState(State::ST_WAITTING_FOR_THE_START);
     }
 }
 
@@ -360,19 +307,19 @@ void Controller::onError( QAbstractSocket::SocketError socketError )
 {
     qDebug() << client->errorString();
 
-    if (model->getState() == ST_WAITING_STEP || model->getState() == ST_MAKING_STEP)
+    if (model->getState() == State::ST_WAITING_STEP || model->getState() == State::ST_MAKING_STEP)
     {
-        model->setState(ST_WAITTING_FOR_THE_START);
+        model->setState(State::ST_WAITTING_FOR_THE_START);
     }
 
     if (socketError == QAbstractSocket::ConnectionRefusedError)
     {
-        emit gameError(GEM_SERVER_CONNECTION_REFUSED);
+        emit gameError(GameErrorMessage::GEM_SERVER_CONNECTION_REFUSED);
     }
 
     if (socketError == QAbstractSocket::HostNotFoundError || socketError == QAbstractSocket::SocketTimeoutError)
     {
-        emit gameError(GEM_SERVER_UNAVAILABLE);
+        emit gameError(GameErrorMessage::GEM_SERVER_UNAVAILABLE);
     }
 }
 
@@ -405,7 +352,7 @@ void Controller::onConnected()
     client->write( request.toLocal8Bit() );
 
     qDebug() << request;
-    model->setState( ST_WAITING_STEP );
+    model->setState(State::ST_WAITING_STEP );
 }
 
 State Controller::getState() const
