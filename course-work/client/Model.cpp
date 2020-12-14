@@ -26,6 +26,11 @@ QString Model::getField() const
     return field->getField();
 }
 
+void Model::setField(QString oldField) const
+{
+    return field->setField(oldField);
+}
+
 State Model::getState() const
 {
     return state;

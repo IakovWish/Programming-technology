@@ -29,9 +29,10 @@ public:
     Field();
     Cell getCell( int x, int y ) const;
     void setCell( int x, int y, Cell cell );
+    void setField(QString oldField);
     quint32 getFieldLength() const;
     quint32 getFieldSize() const;
-    bool makeStep(int x, int y, Moves& newMoves);
+    bool makeStep(int x, int y/*, Moves& newMoves*/);
     bool isNewStepPossible(int& possible);
     bool isPossible(int x, int y);
     bool active(int x, int y, Cell(&MASS)[10][10]);
@@ -39,6 +40,7 @@ public:
 private:
     Cell getCellPrivate( int x, int y, const Cells& cells ) const;
     void setCellPrivate( int x, int y, Cell cell, Cells& cells ) const;
+    void setFieldPrivate(QString oldField, Field::Cells& cells);
 
 private:
     int fieldLength_;

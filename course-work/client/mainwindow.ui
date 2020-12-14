@@ -355,7 +355,37 @@
     <addaction name="actionQuit"/>
     <addaction name="actionLeave"/>
    </widget>
+   <widget class="QMenu" name="menuServer">
+    <property name="title">
+     <string>Server</string>
+    </property>
+    <widget class="QMenu" name="menuSave_1">
+     <property name="title">
+      <string>Save 1</string>
+     </property>
+     <addaction name="actionSave_1"/>
+     <addaction name="actionDownload_1"/>
+    </widget>
+    <widget class="QMenu" name="menuSave_2">
+     <property name="title">
+      <string>Save 2</string>
+     </property>
+     <addaction name="actionSave_2"/>
+     <addaction name="actionDownload_2"/>
+    </widget>
+    <widget class="QMenu" name="menuSave_3">
+     <property name="title">
+      <string>Save 3</string>
+     </property>
+     <addaction name="actionSave_3"/>
+     <addaction name="actionDownload_3"/>
+    </widget>
+    <addaction name="menuSave_1"/>
+    <addaction name="menuSave_2"/>
+    <addaction name="menuSave_3"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuServer"/>
   </widget>
   <action name="actionStart">
    <property name="text">
@@ -381,12 +411,34 @@
     <string>Ctrl+L</string>
    </property>
   </action>
-  <action name="actionPlay_with_server">
+  <action name="actionSave_2">
    <property name="text">
-    <string>Play with server</string>
+    <string>Save</string>
    </property>
-   <property name="shortcut">
-    <string>Ctrl+P</string>
+  </action>
+  <action name="actionDownload_2">
+   <property name="text">
+    <string>Download</string>
+   </property>
+  </action>
+  <action name="actionDownload_1">
+   <property name="text">
+    <string>Download</string>
+   </property>
+  </action>
+  <action name="actionSave_3">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionDownload_3">
+   <property name="text">
+    <string>Download</string>
+   </property>
+  </action>
+  <action name="actionSave_1">
+   <property name="text">
+    <string>Save</string>
    </property>
   </action>
  </widget>

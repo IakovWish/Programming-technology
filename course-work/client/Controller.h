@@ -38,9 +38,11 @@ public:
     void onMousePressed( const QPoint& position);
     void onGameStart();
     void onGameQuit();
+    void onGameSave(int i);
+    void onGameDownload(int i);
     State getState() const;
     void setConnectionInfo(const QString& address, quint16 port, const QString& login, const QString& password, const QString& pref);
-        
+   
     QString getServerAddress() const;
     quint16 getServerPort() const;
     QString getUserLogin() const;

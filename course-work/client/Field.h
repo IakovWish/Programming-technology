@@ -24,9 +24,9 @@ public:
     ~Field();
     Cell getCell( int x, int y );
     void setCell( int x, int y, Cell cell );
+    void setField(QString field);
     QString getField();
     void clear();
-    //bool active(int x, int y, Cell (&MASS)[10][10]);
 
 private:
     QVector<Cell> field;

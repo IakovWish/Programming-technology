@@ -21,9 +21,10 @@ void Client::send( const QString& cmd )
     clientStream << flush;
 }
 
-void Client::setField()
+void Client::setField(QString oldField)
 {
     field_ = new Field();
+    field_->setField(oldField);
 }
 
 Field* Client::field()
@@ -33,7 +34,7 @@ Field* Client::field()
 
 void Client::setSeen()
 {
-    lastSeen_=time(NULL);
+    lastSeen_ = time(NULL);
 }
 
 size_t Client::lastSeen()

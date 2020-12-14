@@ -40,6 +40,33 @@ void Field::setCell( int x, int y, Cell cell )
     //qDebug() << "ERROR: no such cell (" << x << "x" << y << ")";
 }
 
+void Field::setField(QString oldField)
+{
+    for (int i = 0; i != 100; i++)
+    {
+        if (oldField[i] == "0")
+        {
+            field[i] = Cell::CL_CLEAR;
+        }
+        else if (oldField[i] == "1")
+        {
+            field[i] = Cell::CL_X;
+        }
+        else if (oldField[i] == "2")
+        {
+            field[i] = Cell::CL_O;
+        }
+        else if (oldField[i] == "3")
+        {
+            field[i] = Cell::CL_CATCH_X;
+        }
+        else if (oldField[i] == "4")
+        {
+            field[i] = Cell::CL_CATCH_O;
+        }
+    }
+}
+
 QString Field::getField()
 {
     QString result;
@@ -50,9 +77,21 @@ QString Field::getField()
         {
             result += "0";
         }
-        else
+        else if (*i == Cell::CL_X)
         {
             result += "1";
+        }
+        else if (*i == Cell::CL_O)
+        {
+            result += "2";
+        }
+        else if (*i == Cell::CL_CATCH_X)
+        {
+            result += "3";
+        }
+        else if (*i == Cell::CL_CATCH_O)
+        {
+            result += "4";
         }
     }
 

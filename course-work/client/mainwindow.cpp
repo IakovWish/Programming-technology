@@ -48,8 +48,7 @@ void MainWindow::paintEvent(QPaintEvent* event)
 
     QPainter painter(this);
 
-    painter.drawImage(FIELD_X, FIELD_Y + deltaY, myFieldImage());
-    painter.drawImage(FIELD_X, FIELD_Y + deltaY, enemyFieldImage());
+    painter.drawImage(FIELD_X, FIELD_Y + deltaY, getFieldImage());
 
     switch (controller->getState())
     {
@@ -67,17 +66,7 @@ void MainWindow::paintEvent(QPaintEvent* event)
     }
 }
 
-QImage MainWindow::myFieldImage()
-{
-    return getFieldImage(0);
-}
-
-QImage MainWindow::enemyFieldImage()
-{
-    return getFieldImage(1);
-}
-
-QImage MainWindow::getFieldImage(char fld)
+QImage MainWindow::getFieldImage()
 {
     QImage image(FIELD_WIDTH, FIELD_HEIGHT, QImage::Format_ARGB32);
     Cell cell;
@@ -91,7 +80,6 @@ QImage MainWindow::getFieldImage(char fld)
     {
         for (int j = 0; j < 10; j++)
         {
-            // fld == 0 means me; fld == other means enemy
             cell = model->getCell(i, j);
             QString imgName = "";
             switch (cell)
@@ -176,6 +164,15 @@ void MainWindow::redraw()
         ui->actionLeave->setDisabled(false);
     }
 
+    if (controller->getState() == State::ST_MAKING_STEP && model->getPref() == "server")
+    {
+        ui->menuServer->setDisabled(false);
+    }
+    else
+    {
+        ui->menuServer->setDisabled(true);
+    }
+
     this->update();
 }
 
@@ -236,6 +233,57 @@ void MainWindow::on_actionLeave_triggered()
 {
     controller->onGameQuit();
     QMessageBox::information(this, tr("Game Info"), tr("You have disconnected!"));
+
+    redraw();
+}
+
+void MainWindow::on_actionSave_1_triggered()
+{
+    controller->onGameSave(1);
+    QMessageBox::information(this, tr("Game Info"), tr("Game saved!"));
+
+    redraw();
+}
+
+void MainWindow::on_actionSave_2_triggered()
+{
+    controller->onGameSave(2);
+    QMessageBox::information(this, tr("Game Info"), tr("Game saved!"));
+
+    redraw();
+}
+
+void MainWindow::on_actionSave_3_triggered()
+{
+    controller->onGameSave(3);
+    QMessageBox::information(this, tr("Game Info"), tr("Game saved!"));
+
+    redraw();
+}
+
+void MainWindow::on_actionDownload_1_triggered()
+{
+    controller->onGameDownload(1);
+    getFieldImage();
+    QMessageBox::information(this, tr("Game Info"), tr("Save loaded!"));
+
+    redraw();
+}
+
+void MainWindow::on_actionDownload_2_triggered()
+{
+    controller->onGameDownload(2);
+    getFieldImage();
+    QMessageBox::information(this, tr("Game Info"), tr("Save loaded!"));
+
+    redraw();
+}
+
+void MainWindow::on_actionDownload_3_triggered()
+{
+    controller->onGameDownload(3);
+    getFieldImage();
+    QMessageBox::information(this, tr("Game Info"), tr("Save loaded!"));
 
     redraw();
 }

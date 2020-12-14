@@ -35,20 +35,24 @@ protected:
 
 private slots:
     void redraw();
-    void showGameResult( GameResult result );
-    void showGameError( GameErrorMessage message );
-    void changeGameOpponent( const QString& name );
+    void showGameResult(GameResult result);
+    void showGameError(GameErrorMessage message);
+    void changeGameOpponent(const QString& name);
     void on_actionStart_triggered();
     void on_actionQuit_triggered();
     void on_actionLeave_triggered();
+    void on_actionSave_1_triggered();
+    void on_actionSave_2_triggered();
+    void on_actionSave_3_triggered();
+    void on_actionDownload_1_triggered();
+    void on_actionDownload_2_triggered();
+    void on_actionDownload_3_triggered();
 
 private:
     void setStatus( const QString& status );
 
 private:
-    QImage myFieldImage();
-    QImage enemyFieldImage();
-    QImage getFieldImage( char );
+    QImage getFieldImage();
 
 private:
     Ui::MainWindow* ui;

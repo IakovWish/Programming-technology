@@ -269,6 +269,11 @@ void Server::parseData( const QString& cmd, int clientId )
         return;
     }
 
+    if (stateRecieveSave(cmd, cit))
+    {
+        return;
+    }
+
     cit->send( "wrongcmd:" );
 }
 
@@ -349,9 +354,15 @@ bool Server::stateRecieveField( const QString& cmd, ClientsIterator client )
         return false;
     }
 
+    if (client->status == Client::ClientStatus::MAKING_STEP && client->login == client->playingWith->login)
+    {
+        client->setField(rx.cap(2));
+        return true;
+    }
+
     if (client->status == Client::ClientStatus::AUTHORIZED_TO_PLAY_WITH_SERVER)
     {
-        client->setField();
+        client->setField(rx.cap(2));
         client->status = Client::ClientStatus::READY_TO_PLAY_WITH_SERVER;
         return true;
     }
@@ -361,7 +372,7 @@ bool Server::stateRecieveField( const QString& cmd, ClientsIterator client )
         return false;
     }
 
-    client->setField();
+    client->setField(rx.cap(2));
 
     client->status = Client::ClientStatus::READY;
 
@@ -377,6 +388,18 @@ bool Server::stateRecievePing( const QString& cmd, ClientsIterator client )
     }
 
     client->setSeen();
+    return true;
+}
+
+bool Server::stateRecieveSave(const QString& cmd, ClientsIterator client)
+{
+    QRegExp rx("save(\\d):");
+    if (rx.indexIn(cmd) == -1)
+    {
+        return false;
+    }
+
+    
     return true;
 }
 
@@ -400,14 +423,9 @@ bool Server::stateRecieveSteps( const QString& cmd, ClientsIterator client )
 
     QString response1, response2;
     Field* field1 = client->field();
-    Field* field2;
-    Field test;
-    Field* field3 = &test;
-    
-    if (client->login != client->playingWith->login)
-    {
-        field2 = client->playingWith->field();
-    }
+    Field* field2 = client->playingWith->field();
+    Field server_fild;
+    Field* field3 = &server_fild;
 
     Field::Cell current = field1->getCell(x, y);
 
@@ -417,10 +435,9 @@ bool Server::stateRecieveSteps( const QString& cmd, ClientsIterator client )
         return true;
     }
 
-    Field::Moves killShots;
     Field::Moves aktive_mass;
 
-    bool isCatched = field1->makeStep(x, y, killShots);
+    bool isCatched = field1->makeStep(x, y);
 
     bool is3step = client->step == 3 ? true : false;
 
@@ -435,33 +452,16 @@ bool Server::stateRecieveSteps( const QString& cmd, ClientsIterator client )
     if (is3step)
     {
         field1->setCell( x, y, cell1);
+        client->status = Client::ClientStatus::WAITING_STEP;
+        response1 = QString("field2:%1:%2:%3:").arg(type).arg(x).arg(y);
+        client->send(response1);
 
         if (client->login != client->playingWith->login)
         {
             field2->setCell(x, y, cell2);
-        }
-
-        client->status = Client::ClientStatus::WAITING_STEP;
-
-        if (client->login != client->playingWith->login)
-        {
             client->playingWith->status = Client::ClientStatus::MAKING_STEP;
-        }
-
-        response1 = QString("field2:%1:%2:%3:").arg(type).arg(x).arg(y);
-
-        if (client->login != client->playingWith->login)
-        {
             response2 = QString("field1:%1:%2:%3:").arg(type).arg(x).arg(y);
-        }
-
-        client->send( response1 );
-
-        if (client->login != client->playingWith->login)
-        {
             client->playingWith->send(response2);
-
-            field2 = client->playingWith->field();
 
             int possible = 0;
             if (!field2->isNewStepPossible(possible))
@@ -474,7 +474,7 @@ bool Server::stateRecieveSteps( const QString& cmd, ClientsIterator client )
         }
         else
         {
-            //field1 = client->field();
+            field1 = client->field();
 
             for (int i = 0; i < 10; i++)
             {
@@ -507,107 +507,57 @@ bool Server::stateRecieveSteps( const QString& cmd, ClientsIterator client )
             int possible = 0;
             if (!field3->isNewStepPossible(possible))
             {
-                disconnectClientAndRecord(client, true);
+                client.value().send("win:");
+
+                disconnectClient(client);
                 return true;
             }
 
             qsrand(QTime::currentTime().msecsSinceStartOfDay());
 
-            aktive_mass.clear();
-
-            for (int i = 0; i < 10; i++)
+            while(client->step <= 3)
             {
-                for (int j = 0; j < 10; j++)
+                client->step++;
+                aktive_mass.clear();
+
+                for (int i = 0; i < 10; i++)
                 {
-                    if (field3->isPossible(i, j))
+                    for (int j = 0; j < 10; j++)
                     {
-                        aktive_mass.push_back(QPoint(i, j));
+                        if (field3->isPossible(i, j))
+                        {
+                            aktive_mass.push_back(QPoint(i, j));
+                        }
                     }
                 }
+
+                ind = qrand() % aktive_mass.size() + 0;
+
+                isCatched = field3->makeStep(aktive_mass.at(ind).x(), aktive_mass.at(ind).y());
+                type = isCatched ? "catched" : "standard";
+
+                cell3 = isCatched ? Field::Cell::CATCH_X : Field::Cell::X;
+                cell1 = cell3 == Field::Cell::CATCH_X ? Field::Cell::CATCH_O : Field::Cell::O;
+
+                response1 = QString("field1:%1:%2:%3:").arg(type).arg(aktive_mass.at(ind).x()).arg(aktive_mass.at(ind).y());
+                client->send(response1);
+
+                field1->setCell(aktive_mass.at(ind).x(), aktive_mass.at(ind).y(), cell1);
+                field3->setCell(aktive_mass.at(ind).x(), aktive_mass.at(ind).y(), cell3);
             }
 
-            ind = qrand() % aktive_mass.size() + 0;
+            client->step = 1;
 
-            isCatched = field3->makeStep(aktive_mass.at(ind).x(), aktive_mass.at(ind).y(), killShots);
-            type = isCatched ? "catched" : "standard";
-
-            cell3 = isCatched ? Field::Cell::CATCH_X : Field::Cell::X;
-            cell1 = cell3 == Field::Cell::CATCH_X ? Field::Cell::CATCH_O : Field::Cell::O;
-
-            response1 = QString("field1:%1:%2:%3:").arg(type).arg(aktive_mass.at(ind).x()).arg(aktive_mass.at(ind).y());
-            client->send(response1);
-
-            field1->setCell(aktive_mass.at(ind).x(), aktive_mass.at(ind).y(), cell1);
-            field3->setCell(aktive_mass.at(ind).x(), aktive_mass.at(ind).y(), cell3);
-
-            aktive_mass.clear();
-
-            for (int i = 0; i < 10; i++)
-            {
-                for (int j = 0; j < 10; j++)
-                {
-                    if (field3->isPossible(i, j))
-                    {
-                        aktive_mass.push_back(QPoint(i, j));
-                    }
-                }
-            }
-
-            ind = qrand() % aktive_mass.size() + 0;
-
-            isCatched = field3->makeStep(aktive_mass.at(ind).x(), aktive_mass.at(ind).y(), killShots);
-            type = isCatched ? "catched" : "standard";
-
-            cell3 = isCatched ? Field::Cell::CATCH_X : Field::Cell::X;
-            cell1 = cell3 == Field::Cell::CATCH_X ? Field::Cell::CATCH_O : Field::Cell::O;
-
-            response1 = QString("field1:%1:%2:%3:").arg(type).arg(aktive_mass.at(ind).x()).arg(aktive_mass.at(ind).y());
-            client->send(response1);
-
-            field1->setCell(aktive_mass.at(ind).x(), aktive_mass.at(ind).y(), cell1);
-            field3->setCell(aktive_mass.at(ind).x(), aktive_mass.at(ind).y(), cell3);
-
-            aktive_mass.clear();
-
-            for (int i = 0; i < 10; i++)
-            {
-                for (int j = 0; j < 10; j++)
-                {
-                    if (field3->isPossible(i, j))
-                    {
-                        aktive_mass.push_back(QPoint(i, j));
-                    }
-                }
-            }
-
-            ind = qrand() % aktive_mass.size() + 0;
-
-            isCatched = field3->makeStep(aktive_mass.at(ind).x(), aktive_mass.at(ind).y(), killShots);
-            type = isCatched ? "catched" : "standard";
-
-            cell3 = isCatched ? Field::Cell::CATCH_X : Field::Cell::X;
-            cell1 = cell3 == Field::Cell::CATCH_X ? Field::Cell::CATCH_O : Field::Cell::O;
-
-            response1 = QString("field1:%1:%2:%3:").arg(type).arg(aktive_mass.at(ind).x()).arg(aktive_mass.at(ind).y());
-            client->send(response1);
-
-            field1->setCell(aktive_mass.at(ind).x(), aktive_mass.at(ind).y(), cell1);
-            field3->setCell(aktive_mass.at(ind).x(), aktive_mass.at(ind).y(), cell3);
-
-
-
-            
             client->status = Client::ClientStatus::MAKING_STEP;
 
             possible = 0;
             if (!field1->isNewStepPossible(possible))
             {
-                disconnectClientAndRecord(client, false);
+                client.value().send("lose:");
+
+                disconnectClient(client);
                 return true;
             }
-
-            
-            //field3->setCell(aktive_mass.at(ind).x(), aktive_mass.at(ind).y(), cell3);
 
             client->send("go:");
         }
@@ -615,16 +565,13 @@ bool Server::stateRecieveSteps( const QString& cmd, ClientsIterator client )
         return true;
     }
 
-    for (int i = 0; i < killShots.size(); i++)
-    {
-        response1 = QString("field2:%1:%2:%3:").arg(type).arg(killShots.at(i).x()).arg(killShots.at(i).y());
-        client->send(response1);
+    response1 = QString("field2:%1:%2:%3:").arg(type).arg(x).arg(y);
+    client->send(response1);
 
-        if (client->login != client->playingWith->login)
-        {
-            response2 = QString("field1:%1:%2:%3:").arg(type).arg(killShots.at(i).x()).arg(killShots.at(i).y());
-            client->playingWith->send(response2);
-        } 
+    if (client->login != client->playingWith->login)
+    {
+        response2 = QString("field1:%1:%2:%3:").arg(type).arg(x).arg(y);
+        client->playingWith->send(response2);
     }
 
     field1->setCell(x, y, cell1);

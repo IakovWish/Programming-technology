@@ -64,12 +64,12 @@ private:
     bool stateRecievePing( const QString& cmd, ClientsIterator client );
     bool stateRecieveSteps( const QString& cmd, ClientsIterator client );
     bool stateRecieveStatus( const QString& cmd, ClientsIterator client );
+    bool stateRecieveSave(const QString& cmd, ClientsIterator client);
     bool checkProtocolVersion( int version );
     bool isUserConnected(const QString& cmd);
     CheckUserStatus checkUserLogin(const QString& login, const QString& password);
     bool registerUserLogin( const QString& login, const QString& password );
-    void recordSessionStatistic(const QString& winner, const QString& looser
-    );
+    void recordSessionStatistic(const QString& winner, const QString& looser);
 
 private:
     QTcpServer* tcpServer_;

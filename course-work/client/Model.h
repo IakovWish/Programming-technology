@@ -8,7 +8,7 @@ enum class State
     ST_WAITTING_FOR_THE_START,
     ST_WAITING_STEP,
     ST_MAKING_STEP,
-    PLAYING_WITH_SERVER
+    MAKING_SAVE
 };
 
 class Model: public QObject
@@ -28,6 +28,7 @@ public:
 
     Cell getCell(int x, int y) const;
     void setCell(int x, int y, Cell cell);
+    void setField(QString oldField) const;
     QString getField() const;
     void clearField();
 

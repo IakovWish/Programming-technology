@@ -32,7 +32,7 @@ public:
     QString login;
     int step;
 
-    void setField();
+    void setField(QString oldField);
     Field* field();
     void setSeen();
     size_t lastSeen();

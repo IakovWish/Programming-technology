@@ -2,6 +2,9 @@
 #include "Controller.h"
 
 const QString& DEFAULT_CONFIG_FILE = "config.ini";
+const QString& DEFAULT_SAVE_FILE_1 = "save1.txt";
+const QString& DEFAULT_SAVE_FILE_2 = "save2.txt";
+const QString& DEFAULT_SAVE_FILE_3 = "save3.txt";
 const quint16 DEFAULT_SERVER_PORT = 1234;
 const quint16 DEFAULT_SERVER_TIMEOUT = 5000;
 
@@ -232,7 +235,7 @@ void Controller::markCell(int x, int y, Cell cell, bool atEnemyField)
     model->setCell(x, y, cell);
 }
 
-bool Controller::parseGameResult( const QString& data )
+bool Controller::parseGameResult(const QString& data)
 {
     QRegExp rx( "win:" );
 
@@ -301,6 +304,58 @@ void Controller::onGameQuit()
         model->clearField();
         model->setState(State::ST_WAITTING_FOR_THE_START);
     }
+}
+
+void Controller::onGameSave(int i)
+{
+    QString result = model->getField();
+
+    QString file_name = QString("save%1.txt").arg(i);
+
+    QFile cf(file_name);
+
+    if (!cf.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        return;
+    }
+
+    cf.write(qPrintable(QString("%1\n").arg(result)));
+    cf.close();
+}
+
+void Controller::onGameDownload(int i)
+{
+    QString file_name = QString("save%1.txt").arg(i);
+    QFile cf(file_name);
+
+    if (!QFile::exists(file_name))
+    {
+        qDebug() << "Save file does not exists!";
+        return;
+    }
+
+    if (!cf.open(QFile::ReadOnly))
+    {
+        return;
+    }
+
+    QByteArray line;
+
+    while (!cf.atEnd())
+    {
+        line = cf.readLine();
+
+        model->setField(line);
+
+        qDebug() << "Save info";
+
+        break;
+    }
+
+    cf.close();
+
+    QString request = "field:4:" + model->getField() + ":";
+    client->write(request.toLocal8Bit());
 }
 
 void Controller::onError( QAbstractSocket::SocketError socketError )
