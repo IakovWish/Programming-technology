@@ -11,12 +11,14 @@ public:
 
     enum class ClientStatus
     {
-        ST_CONNECTED = 0,
-        ST_AUTHORIZED,
-        ST_READY,
-        ST_WAITING_STEP,
-        ST_MAKING_STEP,
-        ST_DISCONNECTED
+        CONNECTED = 0,
+        AUTHORIZED,
+        READY,
+        READY_TO_PLAY_WITH_SERVER,
+        AUTHORIZED_TO_PLAY_WITH_SERVER,
+        WAITING_STEP,
+        MAKING_STEP,
+        DISCONNECTED
     };
 
     explicit Client();
@@ -30,7 +32,7 @@ public:
     QString login;
     int step;
 
-    void setField( /*const QString& field, int shipSize*/ );
+    void setField();
     Field* field();
     void setSeen();
     size_t lastSeen();

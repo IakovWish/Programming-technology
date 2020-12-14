@@ -32,9 +32,8 @@ public:
     quint32 getFieldLength() const;
     quint32 getFieldSize() const;
     bool makeStep(int x, int y, Moves& newMoves);
-    bool isNewStepPossible();
+    bool isNewStepPossible(int& possible);
     bool isPossible(int x, int y);
-    //void guess(int x, int y, int& possible);
     bool active(int x, int y, Cell(&MASS)[10][10]);
 
 private:

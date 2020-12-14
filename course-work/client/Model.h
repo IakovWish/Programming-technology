@@ -7,7 +7,8 @@ enum class State
 {
     ST_WAITTING_FOR_THE_START,
     ST_WAITING_STEP,
-    ST_MAKING_STEP
+    ST_MAKING_STEP,
+    PLAYING_WITH_SERVER
 };
 
 class Model: public QObject
@@ -20,9 +21,10 @@ public:
     void setState( State );
     void setLogin(const QString& str);
     void setPassword(const QString& str);
+    void setPref(const QString& str);
     QString getLogin() const;
     QString getPassword() const;
-    //bool isPossible(int x, int y);
+    QString getPref() const;
 
     Cell getCell(int x, int y) const;
     void setCell(int x, int y, Cell cell);
@@ -33,5 +35,5 @@ private:
     Field* field;
 
     State state;
-    QString login, pass;
+    QString login, pass, pref;
 };

@@ -352,9 +352,8 @@
      <string>Game</string>
     </property>
     <addaction name="actionStart"/>
-    <addaction name="actionLeave"/>
-    <addaction name="separator"/>
     <addaction name="actionQuit"/>
+    <addaction name="actionLeave"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -380,6 +379,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionPlay_with_server">
+   <property name="text">
+    <string>Play with server</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
    </property>
   </action>
  </widget>

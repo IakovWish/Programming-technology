@@ -13,16 +13,16 @@ class Server : public QObject
 public:
     enum class ProtocolVersion
     {
-        PV_ALPHA = 1,
-        PV_BETA,
-        PV_RELEASE
+        ALPHA = 1,
+        BETA,
+        RELEASE
     };
 
     enum class CheckUserStatus
     {
-        CUS_NOTFOUND = -1,
-        CUS_OK = 0,
-        CUS_WRONGPASS = 1
+        NOTFOUND = -1,
+        OK = 0,
+        WRONGPASS = 1
     };
 
     explicit Server( QObject* parent = 0 );
@@ -54,7 +54,8 @@ protected:
     void timerEvent( QTimerEvent* event );
 
 private:
-    void connectTwoClients(Clients::iterator client1, Clients::iterator client2);
+    void connectOneClients(ClientsIterator client);
+    void connectTwoClients(ClientsIterator client1, ClientsIterator client2);
     void disconnectClient( ClientsIterator client );
     void disconnectClientAndRecord( ClientsIterator client, bool winnerStatus );
     void parseData( const QString& cmd, int clientId );

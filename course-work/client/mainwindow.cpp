@@ -2,8 +2,7 @@
 #include "mainwindow.h"
 
 MainWindow::MainWindow(QWidget* parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    QMainWindow(parent), ui(new Ui::MainWindow)
 {
     qsrand(QTime::currentTime().msec());
 
@@ -140,23 +139,21 @@ void MainWindow::on_actionStart_triggered()
     ConnectionInfoDialog* connectionDialog = new ConnectionInfoDialog(this);
 
     connectionDialog->setModal(true);
-    connectionDialog->setAddressString(
-        controller->getServerAddress(),
-        controller->getServerPort()
-    );
+    connectionDialog->setAddressString(controller->getServerAddress(), controller->getServerPort());
+    
     connectionDialog->setLogin(controller->getUserLogin());
 
     connectionDialog->setPassword(controller->getUserPassword());
 
-    if (connectionDialog->exec() != QDialog::Accepted)
-        return;
+    connectionDialog->setPref(controller->getUserPref());
 
-    controller->setConnectionInfo(
-        connectionDialog->getAddress(),
-        connectionDialog->getPort(),
-        connectionDialog->getLogin(),
-        connectionDialog->getPassword()
-    );
+    if (connectionDialog->exec() != QDialog::Accepted)
+    {
+        return;
+    }
+
+    controller->setConnectionInfo(connectionDialog->getAddress(), connectionDialog->getPort(), connectionDialog->getLogin(), connectionDialog->getPassword(), connectionDialog->getPref());
+    
     controller->onGameStart();
     redraw();
 }
@@ -238,11 +235,7 @@ void MainWindow::showGameError(GameErrorMessage message)
 void MainWindow::on_actionLeave_triggered()
 {
     controller->onGameQuit();
-    QMessageBox::information(
-        this,
-        tr("Game Info"),
-        tr("You have disconnected!")
-    );
+    QMessageBox::information(this, tr("Game Info"), tr("You have disconnected!"));
 
     redraw();
 }

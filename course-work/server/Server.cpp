@@ -2,8 +2,9 @@
 #include <QRegExp>
 #include <QTimerEvent>
 #include "Server.h"
+#include <QTime>
 
-Server::ProtocolVersion PROTOCOL_VERSION = Server::ProtocolVersion::PV_BETA;
+Server::ProtocolVersion PROTOCOL_VERSION = Server::ProtocolVersion::BETA;
 
 Server::Server( QObject* parent ):
     QObject( parent ),
@@ -148,7 +149,7 @@ void Server::timerEvent( QTimerEvent* event )
     for( ClientsIterator cit = clients_.begin(); cit != clients_.end() && clients_.size() != 0; cit++ )
     {
          //Remove disconnected clients from list
-        if( cit->status == Client::ClientStatus::ST_DISCONNECTED )
+        if( cit->status == Client::ClientStatus::DISCONNECTED )
         {
             if (freeClient == cit)
             {
@@ -171,18 +172,20 @@ void Server::timerEvent( QTimerEvent* event )
             continue;
         }
 
-        if (cit->status != Client::ClientStatus::ST_READY)
+        if (cit->status != Client::ClientStatus::READY && cit->status != Client::ClientStatus::READY_TO_PLAY_WITH_SERVER)
         {
             continue;
         }
 
-        if(
-            freeClient != clients_.end() &&
-            freeClient != cit &&
-            freeClient->status == Client::ClientStatus::ST_READY
-        )
+        if (cit->status == Client::ClientStatus::READY_TO_PLAY_WITH_SERVER)
         {
-            connectTwoClients( freeClient, cit );
+            connectOneClients(cit);
+            continue;
+        }
+
+        if(freeClient != clients_.end() && freeClient != cit && freeClient->status == Client::ClientStatus::READY)
+        {
+            connectTwoClients(freeClient, cit);
             freeClient = clients_.end();
             continue;
         }
@@ -193,13 +196,21 @@ void Server::timerEvent( QTimerEvent* event )
 
 void Server::connectTwoClients(ClientsIterator client1, ClientsIterator client2)
 {
-    client1->status = Client::ClientStatus::ST_MAKING_STEP;
-    client2->status = Client::ClientStatus::ST_WAITING_STEP;
+    client1->status = Client::ClientStatus::MAKING_STEP;
+    client2->status = Client::ClientStatus::WAITING_STEP;
     client1->playingWith = client2;
     client2->playingWith = client1;
     client1->socket->write(qPrintable(QString("found:%1:").arg(client2->login)));
     client2->socket->write(qPrintable(QString("found:%1:").arg(client1->login)));
     client1->socket->write( "go:" );
+}
+
+void Server::connectOneClients(ClientsIterator client)
+{
+    client->status = Client::ClientStatus::MAKING_STEP;
+    client->playingWith = client;
+    client->socket->write("found:server:");
+    client->socket->write( "go: ");
 }
 
 void Server::on_newUserConnected()
@@ -208,7 +219,7 @@ void Server::on_newUserConnected()
 
     Client client;
     client.socket = tcpServer_->nextPendingConnection();
-    client.status = Client::ClientStatus::ST_CONNECTED;
+    client.status = Client::ClientStatus::CONNECTED;
     client.playingWith = clients_.end();
     int clientId = client.socket->socketDescriptor();
     clients_.insert( clientId, client );
@@ -263,11 +274,8 @@ void Server::parseData( const QString& cmd, int clientId )
 
 bool Server::stateAuthorize( const QString& cmd, ClientsIterator client )
 {
-    QRegExp rx(
-        QString("mbclient:(\\d+):((\\w|\\d){%1,%2}):(.+):")
-            .arg(LOGIN_LENGTH_MIN)
-            .arg(LOGIN_LENGTH_MAX)
-    );
+    QRegExp rx(QString("mbclient:(\\d+):((\\w|\\d){%1,%2}):(.+):((\\w|\\d){%1,%2}):").arg(LOGIN_LENGTH_MIN).arg(LOGIN_LENGTH_MAX).arg(LOGIN_LENGTH_MIN).arg(LOGIN_LENGTH_MAX));
+           
     if (rx.indexIn(cmd) == -1)
     {
         return false;
@@ -275,7 +283,7 @@ bool Server::stateAuthorize( const QString& cmd, ClientsIterator client )
 
     const QString& login = rx.cap(2);
     const QString& password = rx.cap(4);
-
+    const QString& pref = rx.cap(5);
 
     if (isUserConnected(login))
     {
@@ -284,7 +292,7 @@ bool Server::stateAuthorize( const QString& cmd, ClientsIterator client )
         return true;
     }
 
-    if( client->status == Client::ClientStatus::ST_AUTHORIZED && client->login == login )
+    if( (client->status == Client::ClientStatus::AUTHORIZED || client->status == Client::ClientStatus::READY_TO_PLAY_WITH_SERVER) && client->login == login )
     {
         client->send( "alreadyauth:" );
         disconnectClient( client );
@@ -299,9 +307,9 @@ bool Server::stateAuthorize( const QString& cmd, ClientsIterator client )
     }
 
     CheckUserStatus cus = checkUserLogin( login, password );
-    if( registrationAllowed_ && cus == CheckUserStatus :: CUS_NOTFOUND )
+    if( registrationAllowed_ && cus == CheckUserStatus :: NOTFOUND )
     {
-        cus = CheckUserStatus::CUS_OK;
+        cus = CheckUserStatus::OK;
         if( !registerUserLogin(login, password) )
         {
             // TODO: return 'server error' status or smth
@@ -309,16 +317,24 @@ bool Server::stateAuthorize( const QString& cmd, ClientsIterator client )
         }
     }
 
-    if( cus != CheckUserStatus::CUS_OK || (!guestAllowed_ && login == DEFAULT_GUEST_ACCOUNT) )
+    if( cus != CheckUserStatus::OK || (!guestAllowed_ && login == DEFAULT_GUEST_ACCOUNT) )
     {
         client->send( "wronguser:" );
         disconnectClient( client );
         return true;
     }
 
-    client->status = Client::ClientStatus::ST_AUTHORIZED;
+    if (pref == "server")
+    {
+        client->status = Client::ClientStatus::AUTHORIZED_TO_PLAY_WITH_SERVER;
+    }
+    else
+    {
+        client->status = Client::ClientStatus::AUTHORIZED;
+        client->playingWith = clients_.end();
+    }
+    
     client->login = login;
-    client->playingWith = clients_.end();
     client->send(qPrintable(QString("mbserver:%1:").arg((const int) PROTOCOL_VERSION)));
         
     qDebug() << "User" << client->login << "authorized";
@@ -333,17 +349,22 @@ bool Server::stateRecieveField( const QString& cmd, ClientsIterator client )
         return false;
     }
 
-    if (client->status != Client::ClientStatus::ST_AUTHORIZED)
+    if (client->status == Client::ClientStatus::AUTHORIZED_TO_PLAY_WITH_SERVER)
+    {
+        client->setField();
+        client->status = Client::ClientStatus::READY_TO_PLAY_WITH_SERVER;
+        return true;
+    }
+
+    if (client->status != Client::ClientStatus::AUTHORIZED)
     {
         return false;
     }
 
-    int shipSize = rx.cap(1).toInt();
-    const QString& field = rx.cap(2);
-
     client->setField();
 
-    client->status = Client::ClientStatus::ST_READY;
+    client->status = Client::ClientStatus::READY;
+
     return true;
 }
 
@@ -367,7 +388,7 @@ bool Server::stateRecieveSteps( const QString& cmd, ClientsIterator client )
         return false;
     }
 
-    if (client->status != Client::ClientStatus::ST_MAKING_STEP)
+    if (client->status != Client::ClientStatus::MAKING_STEP)
     {
         return false;
     }
@@ -379,7 +400,15 @@ bool Server::stateRecieveSteps( const QString& cmd, ClientsIterator client )
 
     QString response1, response2;
     Field* field1 = client->field();
-    Field* field2 = client->playingWith->field();
+    Field* field2;
+    Field test;
+    Field* field3 = &test;
+    
+    if (client->login != client->playingWith->login)
+    {
+        field2 = client->playingWith->field();
+    }
+
     Field::Cell current = field1->getCell(x, y);
 
     if (!field1->isPossible(x, y))
@@ -389,6 +418,7 @@ bool Server::stateRecieveSteps( const QString& cmd, ClientsIterator client )
     }
 
     Field::Moves killShots;
+    Field::Moves aktive_mass;
 
     bool isCatched = field1->makeStep(x, y, killShots);
 
@@ -399,43 +429,210 @@ bool Server::stateRecieveSteps( const QString& cmd, ClientsIterator client )
     client->step = is3step ? 1 : ++client->step;
     Field::Cell cell1 = isCatched ? Field::Cell::CATCH_X : Field::Cell::X;
     Field::Cell cell2 = cell1 == Field::Cell::CATCH_X ? Field::Cell::CATCH_O : Field::Cell::O;
+    Field::Cell cell3;
+    int ind = 0;
 
     if (is3step)
     {
         field1->setCell( x, y, cell1);
-        field2->setCell(x, y, cell2);
-        client->status = Client::ClientStatus::ST_WAITING_STEP;
-        client->playingWith->status = Client::ClientStatus::ST_MAKING_STEP;
 
-        response1 = QString("field2:%1:%2:%3:").arg(type).arg(x).arg(y);
-        response2 = QString("field1:%1:%2:%3:").arg(type).arg(x).arg(y);
-
-        client->send( response1 );
-        client->playingWith->send( response2 );
-
-        field2 = client->playingWith->field();
-
-        if (!field2->isNewStepPossible())
+        if (client->login != client->playingWith->login)
         {
-            disconnectClientAndRecord(client, true);
-            return true;
+            field2->setCell(x, y, cell2);
         }
 
-        client->playingWith->send("go:");
+        client->status = Client::ClientStatus::WAITING_STEP;
+
+        if (client->login != client->playingWith->login)
+        {
+            client->playingWith->status = Client::ClientStatus::MAKING_STEP;
+        }
+
+        response1 = QString("field2:%1:%2:%3:").arg(type).arg(x).arg(y);
+
+        if (client->login != client->playingWith->login)
+        {
+            response2 = QString("field1:%1:%2:%3:").arg(type).arg(x).arg(y);
+        }
+
+        client->send( response1 );
+
+        if (client->login != client->playingWith->login)
+        {
+            client->playingWith->send(response2);
+
+            field2 = client->playingWith->field();
+
+            int possible = 0;
+            if (!field2->isNewStepPossible(possible))
+            {
+                disconnectClientAndRecord(client, true);
+                return true;
+            }
+
+            client->playingWith->send("go:");
+        }
+        else
+        {
+            //field1 = client->field();
+
+            for (int i = 0; i < 10; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    cell3 = field1->getCell(i, j);
+
+                    switch (cell3)
+                    {
+                    case Field::Cell::CLEAR:
+                        break;
+                    case Field::Cell::X:
+                        cell3 = Field::Cell::O;
+                        break;
+                    case Field::Cell::O:
+                        cell3 = Field::Cell::X;
+                        break;
+                    case Field::Cell::CATCH_X:
+                        cell3 = Field::Cell::CATCH_O;
+                        break;
+                    case Field::Cell::CATCH_O:
+                        cell3 = Field::Cell::CATCH_X;
+                        break;
+                    }
+
+                    field3->setCell(i, j, cell3);
+                }
+            }
+
+            int possible = 0;
+            if (!field3->isNewStepPossible(possible))
+            {
+                disconnectClientAndRecord(client, true);
+                return true;
+            }
+
+            qsrand(QTime::currentTime().msecsSinceStartOfDay());
+
+            aktive_mass.clear();
+
+            for (int i = 0; i < 10; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    if (field3->isPossible(i, j))
+                    {
+                        aktive_mass.push_back(QPoint(i, j));
+                    }
+                }
+            }
+
+            ind = qrand() % aktive_mass.size() + 0;
+
+            isCatched = field3->makeStep(aktive_mass.at(ind).x(), aktive_mass.at(ind).y(), killShots);
+            type = isCatched ? "catched" : "standard";
+
+            cell3 = isCatched ? Field::Cell::CATCH_X : Field::Cell::X;
+            cell1 = cell3 == Field::Cell::CATCH_X ? Field::Cell::CATCH_O : Field::Cell::O;
+
+            response1 = QString("field1:%1:%2:%3:").arg(type).arg(aktive_mass.at(ind).x()).arg(aktive_mass.at(ind).y());
+            client->send(response1);
+
+            field1->setCell(aktive_mass.at(ind).x(), aktive_mass.at(ind).y(), cell1);
+            field3->setCell(aktive_mass.at(ind).x(), aktive_mass.at(ind).y(), cell3);
+
+            aktive_mass.clear();
+
+            for (int i = 0; i < 10; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    if (field3->isPossible(i, j))
+                    {
+                        aktive_mass.push_back(QPoint(i, j));
+                    }
+                }
+            }
+
+            ind = qrand() % aktive_mass.size() + 0;
+
+            isCatched = field3->makeStep(aktive_mass.at(ind).x(), aktive_mass.at(ind).y(), killShots);
+            type = isCatched ? "catched" : "standard";
+
+            cell3 = isCatched ? Field::Cell::CATCH_X : Field::Cell::X;
+            cell1 = cell3 == Field::Cell::CATCH_X ? Field::Cell::CATCH_O : Field::Cell::O;
+
+            response1 = QString("field1:%1:%2:%3:").arg(type).arg(aktive_mass.at(ind).x()).arg(aktive_mass.at(ind).y());
+            client->send(response1);
+
+            field1->setCell(aktive_mass.at(ind).x(), aktive_mass.at(ind).y(), cell1);
+            field3->setCell(aktive_mass.at(ind).x(), aktive_mass.at(ind).y(), cell3);
+
+            aktive_mass.clear();
+
+            for (int i = 0; i < 10; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    if (field3->isPossible(i, j))
+                    {
+                        aktive_mass.push_back(QPoint(i, j));
+                    }
+                }
+            }
+
+            ind = qrand() % aktive_mass.size() + 0;
+
+            isCatched = field3->makeStep(aktive_mass.at(ind).x(), aktive_mass.at(ind).y(), killShots);
+            type = isCatched ? "catched" : "standard";
+
+            cell3 = isCatched ? Field::Cell::CATCH_X : Field::Cell::X;
+            cell1 = cell3 == Field::Cell::CATCH_X ? Field::Cell::CATCH_O : Field::Cell::O;
+
+            response1 = QString("field1:%1:%2:%3:").arg(type).arg(aktive_mass.at(ind).x()).arg(aktive_mass.at(ind).y());
+            client->send(response1);
+
+            field1->setCell(aktive_mass.at(ind).x(), aktive_mass.at(ind).y(), cell1);
+            field3->setCell(aktive_mass.at(ind).x(), aktive_mass.at(ind).y(), cell3);
+
+
+
+            
+            client->status = Client::ClientStatus::MAKING_STEP;
+
+            possible = 0;
+            if (!field1->isNewStepPossible(possible))
+            {
+                disconnectClientAndRecord(client, false);
+                return true;
+            }
+
+            
+            //field3->setCell(aktive_mass.at(ind).x(), aktive_mass.at(ind).y(), cell3);
+
+            client->send("go:");
+        }
+
         return true;
     }
 
     for (int i = 0; i < killShots.size(); i++)
     {
         response1 = QString("field2:%1:%2:%3:").arg(type).arg(killShots.at(i).x()).arg(killShots.at(i).y());
-        response2 = QString("field1:%1:%2:%3:").arg(type).arg(killShots.at(i).x()).arg(killShots.at(i).y());
-
         client->send(response1);
-        client->playingWith->send(response2);
+
+        if (client->login != client->playingWith->login)
+        {
+            response2 = QString("field1:%1:%2:%3:").arg(type).arg(killShots.at(i).x()).arg(killShots.at(i).y());
+            client->playingWith->send(response2);
+        } 
     }
 
     field1->setCell(x, y, cell1);
-    field2->setCell(x, y, cell2);
+
+    if (client->login != client->playingWith->login)
+    {
+        field2->setCell(x, y, cell2);
+    }
 
     client->send( "go:" );
     return true;
@@ -469,7 +666,7 @@ bool Server::isUserConnected(const QString& login)
 void Server::disconnectClient( ClientsIterator client )
 {
     client->socket->disconnectFromHost();
-    client->status = Client::ClientStatus::ST_DISCONNECTED;
+    client->status = Client::ClientStatus::DISCONNECTED;
     if (client->playingWith != clients_.end())
     {
         client->playingWith->playingWith = clients_.end();
@@ -488,7 +685,7 @@ void Server::disconnectClientAndRecord(ClientsIterator client, bool winnerStatus
         return;
     }
 
-    if(client->status == Client::ClientStatus::ST_MAKING_STEP || client->status == Client::ClientStatus::ST_WAITING_STEP)
+    if(client->status == Client::ClientStatus::MAKING_STEP || client->status == Client::ClientStatus::WAITING_STEP)
     {
         Client& winner = winnerStatus ? client.value() : client->playingWith.value();
         Client& looser = !winnerStatus ? client.value() : client->playingWith.value();
@@ -516,13 +713,13 @@ Server::CheckUserStatus Server::checkUserLogin(const QString& login, const QStri
 {
     if (guestAllowed_ && login == DEFAULT_GUEST_ACCOUNT)
     {
-        return CheckUserStatus::CUS_OK;
+        return CheckUserStatus::OK;
     }
 
     if( !QFile::exists(authFile_) )
     {
         qWarning() << "WARNING: Auth file not exists";
-        return CheckUserStatus::CUS_NOTFOUND;
+        return CheckUserStatus::NOTFOUND;
     }
 
     QFile af( authFile_ );
@@ -530,22 +727,20 @@ Server::CheckUserStatus Server::checkUserLogin(const QString& login, const QStri
     if( !af.open(QFile::ReadOnly) )
     {
         qCritical() << "ERROR: Unable to open auth file";
-        return CheckUserStatus::CUS_NOTFOUND;
+        return CheckUserStatus::NOTFOUND;
     }
 
     QByteArray data;
-    QRegExp rx(
-        QString("((\\d|\\w| ){%1,%2}):((\\d|\\w){%3,%4}):")
-            .arg(LOGIN_LENGTH_MIN).arg(LOGIN_LENGTH_MAX)
-            .arg(PASSWORD_LENGTH_MIN).arg(PASSWORD_LENGTH_MAX)
-    );
+    QRegExp rx(QString("((\\d|\\w| ){%1,%2}):((\\d|\\w){%3,%4}):").arg(LOGIN_LENGTH_MIN).arg(LOGIN_LENGTH_MAX).arg(PASSWORD_LENGTH_MIN).arg(PASSWORD_LENGTH_MAX));
 
     while( !af.atEnd() )
     {
         data = af.readLine();
 
-        if( rx.indexIn(data) == -1 )
+        if (rx.indexIn(data) == -1)
+        {
             continue;
+        }
 
         if( login.compare(rx.cap(1)) == 0 )
         {
@@ -553,15 +748,15 @@ Server::CheckUserStatus Server::checkUserLogin(const QString& login, const QStri
 
             if (password.compare(rx.cap(3)) == 0)
             {
-                return CheckUserStatus::CUS_OK;
+                return CheckUserStatus::OK;
             }
 
-            return CheckUserStatus::CUS_WRONGPASS;
+            return CheckUserStatus::WRONGPASS;
         }
     }
 
     af.close();
-    return CheckUserStatus::CUS_NOTFOUND;
+    return CheckUserStatus::NOTFOUND;
 }
 
 bool Server::registerUserLogin( const QString& login, const QString& password )

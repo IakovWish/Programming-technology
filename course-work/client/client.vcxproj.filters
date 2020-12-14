@@ -30,10 +30,10 @@
     <QtMoc Include="Controller.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="MainWindow.h">
+    <QtMoc Include="Model.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="Model.h">
+    <QtMoc Include="mainwindow.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

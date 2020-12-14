@@ -5,7 +5,7 @@ const QString& DEFAULT_CONFIG_FILE = "config.ini";
 const quint16 DEFAULT_SERVER_PORT = 1234;
 const quint16 DEFAULT_SERVER_TIMEOUT = 5000;
 
-Controller::Controller( Model* model_ ):
+Controller::Controller( Model* model_):
     model( model_ ),
     serverAddress( QHostAddress::LocalHost ),
     serverPort( DEFAULT_SERVER_PORT )
@@ -41,7 +41,7 @@ void Controller::readConfig()
     }
 
     QByteArray line;
-    QRegExp rx( "(\\d+\\.\\d+\\.\\d+\\.\\d+):(\\d+):(\\w+):(.+):" );
+    QRegExp rx( "(\\d+\\.\\d+\\.\\d+\\.\\d+):(\\d+):(\\w+):(.+):(\\w+):" );
 
     while( !cf.atEnd() )
     {
@@ -53,7 +53,7 @@ void Controller::readConfig()
         }
 
         qDebug() << "Setting connection info";
-        setConnectionInfo(rx.cap(1), rx.cap(2).toUInt(), rx.cap(3), rx.cap(4));
+        setConnectionInfo(rx.cap(1), rx.cap(2).toUInt(), rx.cap(3), rx.cap(4), rx.cap(5));
 
         break;
     }
@@ -70,7 +70,7 @@ void Controller::saveConfig()
         return;
     }
 
-    cf.write(qPrintable(QString("%1:%2:%3:%4:\n").arg(serverAddress.toString()).arg(serverPort).arg(model->getLogin()).arg(model->getPassword())));
+    cf.write(qPrintable(QString("%1:%2:%3:%4:%5:\n").arg(serverAddress.toString()).arg(serverPort).arg(model->getLogin()).arg(model->getPassword()).arg(model->getPref())));
     cf.close();
 }
 
@@ -329,9 +329,9 @@ void Controller::onConnected()
     QString request;
     connectionError = false;
 
-    request = QString( "mbclient:2:%1:%2:" )
-        .arg( model->getLogin() )
-        .arg( model->getPassword() );
+    request = QString( "mbclient:2:%1:%2:%3:").arg(model->getLogin()).arg(model->getPassword()).arg(model->getPref());
+
+    qDebug() << response;
 
     client->write( request.toLocal8Bit() );
 
@@ -360,12 +360,13 @@ State Controller::getState() const
     return model->getState();
 }
 
-void Controller::setConnectionInfo(const QString& address, quint16 port, const QString& login, const QString& password)
+void Controller::setConnectionInfo(const QString& address, quint16 port, const QString& login, const QString& password, const QString& pref)
 {
     serverAddress = QHostAddress( address );
     serverPort = port;
     model->setLogin( login );
     model->setPassword( password );
+    model->setPref(pref);
 }
 
 QString Controller::getServerAddress() const
@@ -386,4 +387,9 @@ QString Controller::getUserLogin() const
 QString Controller::getUserPassword() const
 {
     return model->getPassword();
+}
+
+QString Controller::getUserPref() const
+{
+    return model->getPref();
 }

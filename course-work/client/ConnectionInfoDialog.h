@@ -20,9 +20,11 @@ public:
     void setAddressString( const QHostAddress& address, quint16 port );
     void setLogin( const QString& login );
     void setPassword( const QString& password);
+    void setPref(const QString& pref);
     QString getAddress() const;
     QString getLogin() const;
     QString getPassword() const;
+    QString getPref() const;
     quint16 getPort();
 
 public slots:
@@ -35,10 +37,12 @@ private:
     QLineEdit* addressTextBox;
     QLineEdit* loginTextBox;
     QLineEdit* passTextBox;
+    QLineEdit* prefTextBox;
 
     QLabel* addrLabel;
     QLabel* loginLabel;
     QLabel* passLabel;
+    QLabel* prefLabel;
 
     QPushButton* cancelButton;
     QPushButton* applyButton;
@@ -46,6 +50,7 @@ private:
     QHBoxLayout* addrLayout;
     QHBoxLayout* loginLayout;
     QHBoxLayout* passLayout;
+    QHBoxLayout* prefLayout;
     QHBoxLayout* buttonLayout;
     QVBoxLayout* verticalLayout;
 
@@ -54,5 +59,6 @@ private:
     QString address;
     QString login;
     QString pass;
+    QString pref;
     quint16 port;
 };

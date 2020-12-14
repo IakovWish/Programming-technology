@@ -13,11 +13,12 @@ ConnectionInfoDialog::ConnectionInfoDialog( QWidget* parent ):
     addrLabel = new QLabel( this );
     loginLabel = new QLabel( this );
     passLabel = new QLabel( this );
+    prefLabel = new QLabel(this);
 
     addressTextBox = new QLineEdit( this );
     loginTextBox = new QLineEdit( this );
     passTextBox = new QLineEdit( this );
-
+    prefTextBox = new QLineEdit(this);
 
     layout = new QGridLayout( this );
     layout->addWidget( addrLabel, 0, 0 );
@@ -29,14 +30,18 @@ ConnectionInfoDialog::ConnectionInfoDialog( QWidget* parent ):
     layout->addWidget( passLabel, 2, 0 );
     layout->addWidget( passTextBox, 2, 1 );
 
-    layout->addWidget( applyButton, 3, 0 );
-    layout->addWidget( cancelButton, 3, 1 );
+    layout->addWidget(prefLabel, 3, 0);
+    layout->addWidget(prefTextBox, 3, 1);
 
-    this->setFixedSize( 280, 150 );
+    layout->addWidget( applyButton, 4, 0 );
+    layout->addWidget( cancelButton, 4, 1 );
+
+    this->setFixedSize( 280, 170 );
 
     addrLabel->setText( tr("Host:") );
     loginLabel->setText( tr("Login:") );
     passLabel->setText( tr("Pass:") );
+    prefLabel->setText(tr("Pref:"));
 
     loginTextBox->setText( DEFAULT_LOGIN );
     passTextBox->setText( DEFAULT_PASSWORD );
@@ -50,6 +55,7 @@ ConnectionInfoDialog::ConnectionInfoDialog( QWidget* parent ):
 
     loginTextBox->installEventFilter( this );
     passTextBox->installEventFilter( this );
+    prefTextBox->installEventFilter(this);
 
     // Hide server address box
     addrLabel->setVisible( true );
@@ -61,20 +67,15 @@ ConnectionInfoDialog::ConnectionInfoDialog( QWidget* parent ):
 
 ConnectionInfoDialog::~ConnectionInfoDialog()
 {
+
 }
 
-void ConnectionInfoDialog::setAddressString(
-    const QString& address,
-    quint16 port
-)
+void ConnectionInfoDialog::setAddressString(const QString& address, quint16 port)
 {
     setAddressString( QHostAddress(address), port );
 }
 
-void ConnectionInfoDialog::setAddressString(
-    const QHostAddress& address,
-    quint16 port
-)
+void ConnectionInfoDialog::setAddressString(const QHostAddress& address, quint16 port)
 {
     if (!addressTextBox)
     {
@@ -94,6 +95,11 @@ void ConnectionInfoDialog::setPassword( const QString& password)
     passTextBox->setText( password );
 }
 
+void ConnectionInfoDialog::setPref(const QString& pref)
+{
+    prefTextBox->setText(pref);
+}
+
 QString ConnectionInfoDialog::getAddress() const
 {
     return address;
@@ -109,6 +115,11 @@ QString ConnectionInfoDialog::getPassword() const
     return pass;
 }
 
+QString ConnectionInfoDialog::getPref() const
+{
+    return pref;
+}
+
 quint16 ConnectionInfoDialog::getPort()
 {
     return port;
@@ -122,6 +133,7 @@ void ConnectionInfoDialog::accept()
     port = addressTextBox->text().replace( QRegExp(".*:"), "" ).toInt( &ok );
     login = loginTextBox->text();
     pass = passTextBox->text();
+    pref = prefTextBox->text();
 
     if( !addr.isNull() && ok )
     {
@@ -135,11 +147,7 @@ void ConnectionInfoDialog::accept()
         return;
     }
 
-    QMessageBox::warning(
-        this,
-        tr("Warning"),
-        tr("Specify the valid IPv4 address")
-    );
+    QMessageBox::warning(this, tr("Warning"), tr("Specify the valid IPv4 address"));
 
     addressTextBox->setFocus();
 }
@@ -157,6 +165,12 @@ bool ConnectionInfoDialog::eventFilter( QObject* object, QEvent* event )
         if( object == passTextBox )
         {
             passTextBox->selectAll();
+            return true;
+        }
+
+        if (object == prefTextBox)
+        {
+            prefTextBox->selectAll();
             return true;
         }
 

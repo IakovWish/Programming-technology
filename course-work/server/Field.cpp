@@ -78,155 +78,36 @@ bool Field::makeStep(int x, int y, Moves& newMoves)
     }
 }
 
-//void Field::guess(int x, int y, int& possible)
-//{
-//    Cell MASS[10][10];
-//    for (int i = 0; i < 10; i++)
-//    {
-//        for (int j = 0; j < 10; j++)
-//        {
-//            MASS[i][j] = Cell::ZERO;
-//        }
-//    }
-//
-//    Cell cell1 = getCell(x, y);
-//
-//    if (getCell(x, y) == Cell::CLEAR || getCell(x, y) == Cell::O)
-//    {
-//        Cell cell2 = cell1 == Cell::O ? Cell::CATCH_X : Cell::X;
-//
-//        if (active(x, y, MASS) && ++possible < 3)
-//        {
-//            setCell(x, y, cell2);
-//
-//            if (x < 10 - 1 && active(x + 1, y, MASS))
-//            {
-//                guess(x + 1, y, possible);
-//            }
-//
-//            if (x > 0 && active(x - 1, y, MASS))
-//            {
-//                guess(x - 1, y, possible);
-//            }
-//
-//            if (y < 10 - 1 && active(x, y + 1, MASS))
-//            {
-//                guess(x, y + 1, possible);
-//            }
-//
-//            if (y > 0 && active(x, y - 1, MASS))
-//            {
-//                guess(x, y - 1, possible);
-//            }
-//
-//            if (x < 10 - 1 && y < 10 - 1 && active(x + 1, y + 1, MASS))
-//            {
-//                guess(x + 1, y + 1, possible);
-//            }
-//
-//            if (x < 10 - 1 && y > 0 && active(x + 1, y - 1, MASS))
-//            {
-//                guess(x + 1, y - 1, possible);
-//            }
-//
-//            if (x > 0 && y < 10 - 1 && active(x - 1, y + 1, MASS))
-//            {
-//                guess(x - 1, y + 1, possible);
-//            }
-//
-//            if (x > 0 && y > 0 && active(x - 1, y - 1, MASS))
-//            {
-//                guess(x - 1, y - 1, possible);
-//            }
-//            
-//            setCell(x, y, cell1);
-//        }
-//    }
-//    else if ((active(x, y, MASS) && cell1 == Cell::CATCH_X) || cell1 == Cell::X)
-//    {
-//        if ((x < 10 - 1 && active(x + 1, y, MASS) /*|| getCell(x + 1, y) == Cell::X*/) && (getCell(x + 1, y) == Cell::CLEAR || getCell(x + 1, y) == Cell::O))
-//        {
-//            if (++possible >= 3)
-//            {
-//                return;
-//            }
-//            guess(x + 1, y, possible);
-//        }
-//
-//        if ((x > 0 && active(x - 1, y, MASS) /*|| getCell(x - 1, y) == Cell::X*/) && (getCell(x - 1, y) == Cell::CLEAR || getCell(x - 1, y) == Cell::O))
-//        {
-//            if (++possible >= 3)
-//            {
-//                return;
-//            }
-//            guess(x - 1, y, possible);
-//        }
-//
-//        if ((y < 10 - 1 && active(x, y + 1, MASS) /*|| getCell(x, y + 1) == Cell::X*/) && (getCell(x, y + 1) == Cell::CLEAR || getCell(x, y + 1) == Cell::O))
-//        {
-//            if (++possible >= 3)
-//            {
-//                return;
-//            }
-//            guess(x, y + 1, possible);
-//        }
-//
-//        if ((y > 0 && active(x, y - 1, MASS) /*|| getCell(x, y - 1) == Cell::X*/) && (getCell(x, y - 1) == Cell::CLEAR || getCell(x, y - 1) == Cell::O))
-//        {
-//            if (++possible >= 3)
-//            {
-//                return;
-//            }
-//            guess(x, y - 1, possible);
-//        }
-//
-//        if (x < 10 - 1 && y < 10 - 1 && (active(x + 1, y + 1, MASS) /*|| getCell(x + 1, y + 1) == Cell::X*/) && (getCell(x + 1, y + 1) == Cell::CLEAR || getCell(x + 1, y + 1) == Cell::O))
-//        {
-//            if (++possible >= 3)
-//            {
-//                return;
-//            }
-//            guess(x + 1, y + 1, possible);
-//        }
-//
-//        if ((x < 10 - 1 && y > 0 && active(x + 1, y - 1, MASS) /*|| getCell(x + 1, y - 1) == Cell::X*/) && (getCell(x + 1, y - 1) == Cell::CLEAR || getCell(x + 1, y - 1) == Cell::O))
-//        {
-//            if (++possible >= 3)
-//            {
-//                return;
-//            }
-//            guess(x + 1, y - 1, possible);
-//        }
-//
-//        if ((x > 0 && y < 10 - 1 && active(x - 1, y + 1, MASS) /*|| getCell(x - 1, y + 1) == Cell::X*/) && (getCell(x - 1, y + 1) == Cell::CLEAR || getCell(x - 1, y + 1) == Cell::O))
-//        {
-//            if (++possible >= 3)
-//            {
-//                return;
-//            }
-//            guess(x - 1, y + 1, possible);
-//        }
-//
-//        if ((x > 0 && y > 0 && active(x - 1, y - 1, MASS) /*|| getCell(x - 1, y - 1) == Cell::X*/) && (getCell(x - 1, y - 1) == Cell::CLEAR || getCell(x - 1, y - 1) == Cell::O))
-//        {
-//            if (++possible >= 3)
-//            {
-//                return;
-//            }
-//            guess(x - 1, y - 1, possible);
-//        }
-//    }
-//}
-
-bool Field::isNewStepPossible()
+bool Field::isNewStepPossible(int& possible)
 {
-    int possible = 0;
-
     for (int i = 0; i < 10 && possible < 3; i++)
     {
         for (int j = 0; j < 10 && possible < 3; j++)
         {
-            //guess(i, j, possible);
+            Cell massiv[10][10];
+
+            for (int i = 0; i < 10; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    massiv[i][j] = Cell::ZERO;
+                }
+            }
+
+            Cell cell1 = getCell(i, j);
+
+            if (cell1 != Cell::CATCH_X && cell1 != Cell::CATCH_O && cell1 != Cell::X && active(i, j, massiv))
+            {
+                possible++;
+                Cell cell2 = cell1 == Cell::O ? Cell::CATCH_X : Cell::X;
+                setCell(i, j, cell2);
+                if (isNewStepPossible(possible))
+                {
+                    setCell(i, j, cell1);
+                    return true;
+                }
+                setCell(i, j, cell1);
+            }
         }
     }
 
@@ -238,7 +119,6 @@ bool Field::isNewStepPossible()
     {
         return false;
     }
-    
 }
 
 bool Field::isPossible(int x, int y)
@@ -255,7 +135,7 @@ bool Field::isPossible(int x, int y)
         return false;
     }
 
-    if (x == 0 && y == 0 && cell != Cell::X && cell != Cell::O || x == 10 - 1 && y == 10 - 1 && cell != Cell::X && cell != Cell::O)
+    if ((x == 0 && y == 0 && cell != Cell::X && cell != Cell::O) || (x == 10 - 1 && y == 10 - 1 && cell != Cell::X && cell != Cell::O))
     {
         return true;
     }

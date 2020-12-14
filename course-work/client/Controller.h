@@ -33,18 +33,19 @@ class Controller: public QWidget
 {
     Q_OBJECT
 public:
-    Controller( Model* model_ );
+    Controller( Model* model_);
     ~Controller();
     void onMousePressed( const QPoint& position);
     void onGameStart();
     void onGameQuit();
     State getState() const;
-    void setConnectionInfo(const QString& address, quint16 port, const QString& login, const QString& password);
+    void setConnectionInfo(const QString& address, quint16 port, const QString& login, const QString& password, const QString& pref);
         
     QString getServerAddress() const;
     quint16 getServerPort() const;
     QString getUserLogin() const;
     QString getUserPassword() const;
+    QString getUserPref() const;
 
 signals:
     void stateChanged();
@@ -71,7 +72,6 @@ private:
     bool checkError(const QString&,const QString&);
     void emitError(GameErrorMessage error);
     void markCell(int x, int y, Cell cell, bool atEnemyField = false);
-    //void processTurn(bool me, int x, int y, bool catched);
 
 private:
     QTcpSocket* client;
