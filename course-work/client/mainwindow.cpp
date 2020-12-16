@@ -1,6 +1,10 @@
 #include "ui_mainwindow.h"
 #include "mainwindow.h"
 
+const QString& DEFAULT_SAVE_FILE_1 = "save1.txt";
+const QString& DEFAULT_SAVE_FILE_2 = "save2.txt";
+const QString& DEFAULT_SAVE_FILE_3 = "save3.txt";
+
 MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -171,6 +175,33 @@ void MainWindow::redraw()
     else
     {
         ui->menuServer->setDisabled(true);
+    }
+
+    if (!QFile::exists(DEFAULT_SAVE_FILE_1))
+    {
+        ui->actionDownload_1->setDisabled(true);
+    }
+    else
+    {
+        ui->actionDownload_1->setDisabled(false);
+    }
+
+    if (!QFile::exists(DEFAULT_SAVE_FILE_2))
+    {
+        ui->actionDownload_2->setDisabled(true);
+    }
+    else
+    {
+        ui->actionDownload_2->setDisabled(false);
+    }
+
+    if (!QFile::exists(DEFAULT_SAVE_FILE_3))
+    {
+        ui->actionDownload_3->setDisabled(true);
+    }
+    else
+    {
+        ui->actionDownload_3->setDisabled(false);
     }
 
     this->update();

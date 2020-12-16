@@ -2,9 +2,6 @@
 #include "Controller.h"
 
 const QString& DEFAULT_CONFIG_FILE = "config.ini";
-const QString& DEFAULT_SAVE_FILE_1 = "save1.txt";
-const QString& DEFAULT_SAVE_FILE_2 = "save2.txt";
-const QString& DEFAULT_SAVE_FILE_3 = "save3.txt";
 const quint16 DEFAULT_SERVER_PORT = 1234;
 const quint16 DEFAULT_SERVER_TIMEOUT = 5000;
 
@@ -275,11 +272,11 @@ void Controller::onGameStart()
     }
 
     // hardcoded server address
-    serverAddress = QHostAddress( "127.0.0.1" );
+    //serverAddress = QHostAddress("127.0.0.1");
 
-    client->connectToHost( serverAddress, serverPort );
+    client->connectToHost(serverAddress, serverPort);
 
-    if( !client->waitForConnected(DEFAULT_SERVER_TIMEOUT) )
+    if( !client->waitForConnected(DEFAULT_SERVER_TIMEOUT))
     {
         if (client->error() == QAbstractSocket::SocketTimeoutError)
         {

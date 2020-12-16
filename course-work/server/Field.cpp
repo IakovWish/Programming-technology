@@ -19,9 +19,9 @@ void Field::setCell( int x, int y, Cell cell )
     setCellPrivate( x, y, cell, field_ );
 }
 
-void Field::setField(QString oldField)
+void Field::setField(QString oldField, int& steps)
 {
-    setFieldPrivate(oldField, field_);
+    setFieldPrivate(oldField, field_, steps);
 }
 
 Field::Cell Field::getCellPrivate(int x, int y, const Field::Cells& cells) const
@@ -58,8 +58,9 @@ void Field::setCellPrivate(int x, int y, Cell cell, Field::Cells& cells) const
     cells[n] = cell;
 }
 
-void Field::setFieldPrivate(QString oldField, Field::Cells& cells)
+void Field::setFieldPrivate(QString oldField, Field::Cells& cells, int& steps)
 {
+    steps = 0;
     for (int i = 0; i != 100; i++)
     {
         if (oldField[i] == "0")
@@ -69,6 +70,7 @@ void Field::setFieldPrivate(QString oldField, Field::Cells& cells)
         else if (oldField[i] == "1")
         {
             cells[i] = Field::Cell::X;
+            steps++;
         }
         else if (oldField[i] == "2")
         {
@@ -77,11 +79,25 @@ void Field::setFieldPrivate(QString oldField, Field::Cells& cells)
         else if (oldField[i] == "3")
         {
             cells[i] = Field::Cell::CATCH_X;
+            steps++;
         }
         else if (oldField[i] == "4")
         {
             cells[i] = Field::Cell::CATCH_O;
         }
+    }
+
+    if ((steps + 1) % 3 == 0)
+    {
+        steps = 3; // last step
+    }
+    else if ((steps + 2) % 3 == 0)
+    {
+        steps = 2; // second step
+    }
+    else if (steps % 3 == 0)
+    {
+        steps = 1; // first step
     }
 }
 
@@ -95,18 +111,17 @@ quint32 Field::getFieldSize() const
     return fieldLength_ * fieldLength_;
 }
 
-bool Field::makeStep(int x, int y/*, Moves& newMoves*/)
+bool Field::makeStep(int x, int y)
 {
-    //newMoves.clear();
     Cell cell = getCell(x, y);
-    //newMoves.push_back(QPoint(x, y));
-    if (cell == Cell::CLEAR || cell == Cell::CATCH_X || cell == Cell::CATCH_O || cell == Cell::X)
-    {
-        return false;
-    }
-    else if (cell == Cell::O)
+
+    if (cell == Cell::O)
     {
         return true;
+    }
+    else
+    {
+        return false;
     }
 }
 

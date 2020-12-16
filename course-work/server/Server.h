@@ -64,7 +64,6 @@ private:
     bool stateRecievePing( const QString& cmd, ClientsIterator client );
     bool stateRecieveSteps( const QString& cmd, ClientsIterator client );
     bool stateRecieveStatus( const QString& cmd, ClientsIterator client );
-    bool stateRecieveSave(const QString& cmd, ClientsIterator client);
     bool checkProtocolVersion( int version );
     bool isUserConnected(const QString& cmd);
     CheckUserStatus checkUserLogin(const QString& login, const QString& password);

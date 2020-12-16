@@ -35,12 +35,12 @@ bool Server::spawn()
     return spawn( address(), port() );
 }
 
-bool Server::spawn( const QString& address, quint16 port )
+bool Server::spawn(const QString& address, quint16 port)
 {
     return spawn( QHostAddress(address), port );
 }
 
-bool Server::spawn( const QHostAddress& address, quint16 port )
+bool Server::spawn(const QHostAddress& address, quint16 port)
 {
     if( !tcpServer_ )
         return false;
@@ -104,7 +104,7 @@ QString Server::address() const
     return address_.toString();
 }
 
-void Server::address( QHostAddress& addr ) const
+void Server::address( QHostAddress& addr) const
 {
     addr = address();
 }
@@ -210,32 +210,33 @@ void Server::connectOneClients(ClientsIterator client)
     client->status = Client::ClientStatus::MAKING_STEP;
     client->playingWith = client;
     client->socket->write("found:server:");
-    client->socket->write( "go: ");
+    client->socket->write("go:");
 }
 
 void Server::on_newUserConnected()
 {
-    qDebug() << "Server::on_newUserConnected(): new anonymous user connected";
+    //qDebug() << "Server::on_newUserConnected(): new anonymous user connected";
+    qDebug() << "New user connected";
 
     Client client;
     client.socket = tcpServer_->nextPendingConnection();
     client.status = Client::ClientStatus::CONNECTED;
     client.playingWith = clients_.end();
     int clientId = client.socket->socketDescriptor();
-    clients_.insert( clientId, client );
+    clients_.insert(clientId, client);
     connect(client.socket, SIGNAL(readyRead()), this, SLOT(on_recievedData()));
 }
 
 void Server::on_recievedData()
 {
-    QTcpSocket* clientSocket = ( QTcpSocket* )sender();
+    QTcpSocket* clientSocket = (QTcpSocket* )sender();
     QByteArray data = clientSocket->readAll();
-    parseData( data, clientSocket->socketDescriptor() );
+    parseData( data, clientSocket->socketDescriptor());
 }
 
 void Server::parseData( const QString& cmd, int clientId )
 {
-    ClientsIterator cit = clients_.find( clientId );
+    ClientsIterator cit = clients_.find(clientId);
 
     cit->setSeen();
 
@@ -269,18 +270,13 @@ void Server::parseData( const QString& cmd, int clientId )
         return;
     }
 
-    if (stateRecieveSave(cmd, cit))
-    {
-        return;
-    }
-
-    cit->send( "wrongcmd:" );
+    cit->send("wrongcmd:");
 }
 
-bool Server::stateAuthorize( const QString& cmd, ClientsIterator client )
+bool Server::stateAuthorize(const QString& cmd, ClientsIterator client)
 {
-    QRegExp rx(QString("mbclient:(\\d+):((\\w|\\d){%1,%2}):(.+):((\\w|\\d){%1,%2}):").arg(LOGIN_LENGTH_MIN).arg(LOGIN_LENGTH_MAX).arg(LOGIN_LENGTH_MIN).arg(LOGIN_LENGTH_MAX));
-           
+    QRegExp rx(QString("mbclient:(\\d+):((\\w|\\d){%1,%2}):(.+):((\\w|\\d){%1,%2}):").arg(LOGIN_LENGTH_MIN).arg(LOGIN_LENGTH_MAX));
+    
     if (rx.indexIn(cmd) == -1)
     {
         return false;
@@ -292,21 +288,21 @@ bool Server::stateAuthorize( const QString& cmd, ClientsIterator client )
 
     if (isUserConnected(login))
     {
-        client->send( "alreadyauth:" );
+        client->send("alreadyauth:");
         disconnectClient( client );
         return true;
     }
 
-    if( (client->status == Client::ClientStatus::AUTHORIZED || client->status == Client::ClientStatus::READY_TO_PLAY_WITH_SERVER) && client->login == login )
+    if( (client->status == Client::ClientStatus::AUTHORIZED || client->status == Client::ClientStatus::AUTHORIZED_TO_PLAY_WITH_SERVER) && client->login == login )
     {
-        client->send( "alreadyauth:" );
-        disconnectClient( client );
+        client->send("alreadyauth:");
+        disconnectClient(client);
         return true;
     }
 
     if( !checkProtocolVersion(rx.cap(1).toInt()) )
     {
-        client->send( "wrongver:" );
+        client->send("wrongver:");
         disconnectClient( client );
         return true;
     }
@@ -322,10 +318,10 @@ bool Server::stateAuthorize( const QString& cmd, ClientsIterator client )
         }
     }
 
-    if( cus != CheckUserStatus::OK || (!guestAllowed_ && login == DEFAULT_GUEST_ACCOUNT) )
+    if( cus != CheckUserStatus::OK || (!guestAllowed_ && login == DEFAULT_GUEST_ACCOUNT))
     {
-        client->send( "wronguser:" );
-        disconnectClient( client );
+        client->send("wronguser:");
+        disconnectClient(client);
         return true;
     }
 
@@ -381,7 +377,7 @@ bool Server::stateRecieveField( const QString& cmd, ClientsIterator client )
 
 bool Server::stateRecievePing( const QString& cmd, ClientsIterator client )
 {
-    QRegExp rx( "pong:" );
+    QRegExp rx("pong:");
     if (rx.indexIn(cmd) == -1)
     {
         return false;
@@ -391,21 +387,9 @@ bool Server::stateRecievePing( const QString& cmd, ClientsIterator client )
     return true;
 }
 
-bool Server::stateRecieveSave(const QString& cmd, ClientsIterator client)
-{
-    QRegExp rx("save(\\d):");
-    if (rx.indexIn(cmd) == -1)
-    {
-        return false;
-    }
-
-    
-    return true;
-}
-
 bool Server::stateRecieveSteps( const QString& cmd, ClientsIterator client )
 {
-    QRegExp rx( "step:(\\d):(\\d):" );
+    QRegExp rx("step:(-\\d|\\d):(-\\d|\\d):");
     if (rx.indexIn(cmd) == -1)
     {
         return false;
@@ -474,8 +458,6 @@ bool Server::stateRecieveSteps( const QString& cmd, ClientsIterator client )
         }
         else
         {
-            field1 = client->field();
-
             for (int i = 0; i < 10; i++)
             {
                 for (int j = 0; j < 10; j++)

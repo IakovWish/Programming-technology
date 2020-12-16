@@ -24,7 +24,7 @@ void Client::send( const QString& cmd )
 void Client::setField(QString oldField)
 {
     field_ = new Field();
-    field_->setField(oldField);
+    field_->setField(oldField, step);
 }
 
 Field* Client::field()
