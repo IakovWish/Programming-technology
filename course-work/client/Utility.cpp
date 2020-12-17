@@ -13,8 +13,8 @@ QPoint getFieldCoord(const QPoint& pos)
 
     res.setX(1.0 * (pos.x() - FIELD_X) / (0.1 * FIELD_WIDTH));
 
-    qDebug() << "X: " << pos.x() - FIELD_X;
-    qDebug() << "Y: " << pos.y() - FIELD_Y;
+    //qDebug() << "X: " << pos.x() - FIELD_X;
+    //qDebug() << "Y: " << pos.y() - FIELD_Y;
 
     res.setY(1.0 * (pos.y() - FIELD_Y) / (0.1 * FIELD_HEIGHT));
     return res;

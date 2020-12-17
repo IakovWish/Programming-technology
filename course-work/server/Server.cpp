@@ -149,7 +149,7 @@ void Server::timerEvent( QTimerEvent* event )
     for( ClientsIterator cit = clients_.begin(); cit != clients_.end() && clients_.size() != 0; cit++ )
     {
          //Remove disconnected clients from list
-        if( cit->status == Client::ClientStatus::DISCONNECTED )
+        if( cit->status == Client::ClientStatus::DISCONNECTED)
         {
             if (freeClient == cit)
             {
@@ -596,11 +596,15 @@ void Server::disconnectClient( ClientsIterator client )
 {
     client->socket->disconnectFromHost();
     client->status = Client::ClientStatus::DISCONNECTED;
-    if (client->playingWith != clients_.end())
+
+    if (client->login != client->playingWith->login)
     {
-        client->playingWith->playingWith = clients_.end();
+        if (client->playingWith != clients_.end())
+        {
+            client->playingWith->playingWith = clients_.end();
+        }
+        client->playingWith = clients_.end();
     }
-    client->playingWith = clients_.end();
 
     qDebug() << "User" << client->login << "is disconnected";
 }

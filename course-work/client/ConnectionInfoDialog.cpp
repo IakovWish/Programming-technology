@@ -7,17 +7,17 @@ const QString DEFAULT_PASSWORD = "guest";
 ConnectionInfoDialog::ConnectionInfoDialog( QWidget* parent ):
     QDialog( parent )
 {
-    applyButton = new QPushButton( this );
-    cancelButton = new QPushButton( this );
+    applyButton = new QPushButton(this);
+    cancelButton = new QPushButton(this);
 
-    addrLabel = new QLabel( this );
-    loginLabel = new QLabel( this );
-    passLabel = new QLabel( this );
+    addrLabel = new QLabel(this);
+    loginLabel = new QLabel(this);
+    passLabel = new QLabel(this);
     prefLabel = new QLabel(this);
 
-    addressTextBox = new QLineEdit( this );
-    loginTextBox = new QLineEdit( this );
-    passTextBox = new QLineEdit( this );
+    addressTextBox = new QLineEdit(this);
+    loginTextBox = new QLineEdit(this);
+    passTextBox = new QLineEdit(this);
     prefTextBox = new QLineEdit(this);
 
     layout = new QGridLayout( this );
